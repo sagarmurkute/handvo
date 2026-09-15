@@ -156,8 +156,31 @@ class SettingsManager {
         this.currentProfile = await res.json();
         this._populateUI(this.currentProfile);
       }
+      this.loadVoices();
     } catch (e) {
       console.warn("Could not load active profile from backend:", e);
+    }
+  }
+
+  async loadVoices() {
+    if (!this.selectVoice) return;
+    try {
+      const res = await fetch('/api/speech/voices');
+      if (res.ok) {
+        const data = await res.json();
+        this.selectVoice.innerHTML = '';
+        (data.voices || []).forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.id;
+          opt.textContent = `🗣️ ${v.name}`;
+          if (this.currentProfile && this.currentProfile.voice_id === v.id) {
+            opt.selected = true;
+          }
+          this.selectVoice.appendChild(opt);
+        });
+      }
+    } catch (e) {
+      console.warn("Could not load voices:", e);
     }
   }
 
