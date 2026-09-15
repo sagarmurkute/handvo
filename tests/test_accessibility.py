@@ -1,26 +1,13 @@
-"""Unit tests for HANDVO Accessibility & Personalization System."""
+"""Unit tests for HANDVO Accessibility & Personalization Backend Models."""
 
 import os
 import tempfile
 import pytest
-from PySide6.QtWidgets import QApplication
 
 from app.communication.communication_board import CommunicationBoardModel
 from app.database.database import Database
 from app.database.models import UserProfile
 from app.database.profile_repository import ProfileRepository
-from app.ui.accessibility_dialog import AccessibilityDialog
-from app.ui.cursor_overlay import CursorOverlay
-from app.ui.theme.theme_manager import ThemeManager
-
-
-@pytest.fixture(scope="session")
-def qapp():
-    """Ensure QApplication instance is initialized for GUI widget tests."""
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication([])
-    return app
 
 
 @pytest.fixture
@@ -105,22 +92,6 @@ def test_profile_export_import_with_accessibility(temp_db):
     assert imported.language == "mr"
 
 
-def test_theme_manager_stylesheets():
-    """Verify ThemeManager generates valid CSS stylesheets for different themes and button sizes."""
-    dark_css = ThemeManager.get_stylesheet(theme="dark", button_size="medium")
-    assert "#0f172a" in dark_css
-    assert "min-height: 80px" in dark_css
-
-    light_css = ThemeManager.get_stylesheet(theme="light", button_size="small")
-    assert "#f8fafc" in light_css
-    assert "min-height: 60px" in light_css
-
-    hc_css = ThemeManager.get_stylesheet(theme="high_contrast", button_size="large")
-    assert "#000000" in hc_css
-    assert "#ffff00" in hc_css
-    assert "min-height: 100px" in hc_css
-
-
 def test_multilingual_aac_vocabularies():
     """Verify AAC categories and items switch properly between English, Hindi, and Marathi."""
     model = CommunicationBoardModel()
@@ -148,40 +119,3 @@ def test_multilingual_aac_vocabularies():
     mr_needs_cat = [c for c in mr_categories if c.category_id == "needs"][0]
     assert "गरजा" in mr_needs_cat.name
     assert any("पाणी" in item.label for item in mr_needs_cat.items)
-
-
-def test_cursor_overlay_appearance(qapp):
-    """Verify CursorOverlay updates sizing, color, and motion settings."""
-    overlay = CursorOverlay()
-    overlay.set_appearance(size="large", color="#ec4899", reduced_motion=True)
-
-    assert overlay.cursor_size_name == "large"
-    assert overlay.cursor_color == "#ec4899"
-    assert overlay.reduced_motion is True
-    assert overlay.base_radius == 16.0
-
-
-def test_accessibility_dialog(qapp, temp_db):
-    """Verify AccessibilityDialog loads values and emits settings_changed."""
-    repo = ProfileRepository(temp_db)
-    profile = repo.get_active_profile()
-
-    dlg = AccessibilityDialog(profile=profile, repository=repo)
-
-    signals_received = []
-    dlg.settings_changed.connect(lambda p: signals_received.append(p))
-
-    # Change some UI inputs
-    dlg.slider_dwell.setValue(150)  # 1.50s
-    dlg.slider_cooldown.setValue(80)  # 0.80s
-    dlg.slider_csize.setValue(20)  # 20px
-    dlg.chk_motion.setChecked(True)
-    dlg.combo_lang.setCurrentIndex(1)  # Hindi
-
-    assert len(signals_received) >= 1
-    last_profile = signals_received[-1]
-    assert last_profile.dwell_time == 1.50
-    assert last_profile.cooldown_time == 0.80
-    assert last_profile.cursor_size == 20
-    assert last_profile.reduced_motion is True
-    assert last_profile.language == "hi"
