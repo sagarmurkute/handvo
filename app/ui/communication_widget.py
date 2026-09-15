@@ -186,25 +186,9 @@ class CommunicationWidget(QWidget):
         # -------------------------------------------------------------
         # 3. Category Navigation Tabs
         # -------------------------------------------------------------
-        cat_bar = QHBoxLayout()
-        cat_bar.setSpacing(8)
-
-        categories = self.model.get_categories()
-        self.category_buttons.clear()
-
-        for cat in categories:
-            btn_cat = GazeButton(
-                target_id=f"cat_{cat.category_id}",
-                text=f"{cat.icon} {cat.name}",
-                accent_color=cat.accent_color,
-                callback=lambda cid=cat.category_id: self.model.set_category(cid),
-            )
-            btn_cat.setMinimumHeight(42)
-            self.category_buttons.append(btn_cat)
-            self._button_map[btn_cat.target_id] = btn_cat
-            cat_bar.addWidget(btn_cat)
-
-        root_layout.addLayout(cat_bar)
+        self.cat_bar_layout = QHBoxLayout()
+        self.cat_bar_layout.setSpacing(8)
+        root_layout.addLayout(self.cat_bar_layout)
 
         # -------------------------------------------------------------
         # 4. Responsive Accessible Phrase Card Grid
@@ -233,9 +217,36 @@ class CommunicationWidget(QWidget):
         root_layout.addWidget(self.scroll_area, stretch=1)
 
         # Initial renders
-        self._populate_phrase_grid()
+        self._populate_categories()
         self._update_prediction_chips()
+
+    def _populate_categories(self) -> None:
+        """Rebuild category navigation tab buttons for active language."""
+        for btn in self.category_buttons:
+            self._button_map.pop(btn.target_id, None)
+            btn.deleteLater()
+        self.category_buttons.clear()
+
+        while self.cat_bar_layout.count():
+            item = self.cat_bar_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        categories = self.model.get_categories()
+        for cat in categories:
+            btn_cat = GazeButton(
+                target_id=f"cat_{cat.category_id}",
+                text=f"{cat.icon} {cat.name}",
+                accent_color=cat.accent_color,
+                callback=lambda cid=cat.category_id: self.model.set_category(cid),
+            )
+            btn_cat.setMinimumHeight(42)
+            self.category_buttons.append(btn_cat)
+            self._button_map[btn_cat.target_id] = btn_cat
+            self.cat_bar_layout.addWidget(btn_cat)
+
         self._update_category_tab_styles(self.model.active_category_id)
+        self._populate_phrase_grid()
 
     def _bind_model_events(self) -> None:
         """Connect state changes to UI re-rendering."""
