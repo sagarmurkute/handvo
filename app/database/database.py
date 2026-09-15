@@ -102,3 +102,37 @@ class Database:
                 );
                 """
             )
+
+            # High-priority emergency actions table
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS emergency_actions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    label TEXT NOT NULL,
+                    speech_text TEXT NOT NULL,
+                    icon TEXT DEFAULT '🚨',
+                    accent_color TEXT DEFAULT '#ef4444',
+                    sort_order INTEGER DEFAULT 0,
+                    is_enabled BOOLEAN DEFAULT 1
+                );
+                """
+            )
+
+            # Seed default emergency actions if none exist
+            cursor.execute("SELECT COUNT(*) FROM emergency_actions;")
+            if cursor.fetchone()[0] == 0:
+                defaults = [
+                    ("Call Help", "Emergency! Please help me immediately!", "🚨", "#ef4444", 0),
+                    ("I Need a Doctor", "I need a doctor right now!", "👨‍⚕️", "#dc2626", 1),
+                    ("I'm in Pain", "I am experiencing severe pain!", "⚡", "#f97316", 2),
+                    ("I Can't Breathe", "I cannot breathe, please help me quickly!", "🫁", "#b91c1c", 3),
+                    ("Yes", "Yes", "✅", "#22c55e", 4),
+                    ("No", "No", "❌", "#64748b", 5),
+                ]
+                cursor.executemany(
+                    """
+                    INSERT INTO emergency_actions (label, speech_text, icon, accent_color, sort_order, is_enabled)
+                    VALUES (?, ?, ?, ?, ?, 1);
+                    """,
+                    defaults,
+                )

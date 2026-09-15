@@ -4,7 +4,7 @@ import time
 from typing import Optional
 import cv2
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QCloseEvent, QImage, QPixmap, QResizeEvent
+from PySide6.QtGui import QCloseEvent, QImage, QKeyEvent, QPixmap, QResizeEvent
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -17,12 +17,14 @@ from PySide6.QtWidgets import (
 )
 
 from app.communication.communication_board import CommunicationBoardModel
+from app.communication.emergency_model import EmergencyManager
 from app.config import CONFIG
 from app.gestures.cursor import HandCursorManager
 from app.gestures.dwell import DwellSelector
 from app.gestures.pinch import PinchDetector
 from app.ui.communication_widget import CommunicationWidget
 from app.ui.cursor_overlay import CursorOverlay
+from app.ui.emergency_widget import EmergencyWidget
 from app.vision.camera import Camera
 from app.vision.hand_detector import HandDetector
 
@@ -38,6 +40,7 @@ class MainWindow(QMainWindow):
         self.pinch_detector = PinchDetector()
         self.dwell_selector = DwellSelector(dwell_time_sec=0.80, cooldown_sec=0.60)
         self.comm_model = CommunicationBoardModel()
+        self.emergency_mgr = EmergencyManager()
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._update_frame)
@@ -47,6 +50,8 @@ class MainWindow(QMainWindow):
 
         # Bind Dwell Selector to the Communication Board
         self.comm_widget.set_dwell_engine(self.dwell_selector, self)
+        self.emergency_widget.set_dwell_engine(self.dwell_selector, self)
+        self.comm_widget.register_all_targets()
 
         # Transparent overlay for virtual cursor and dwell feedback
         self.cursor_overlay = CursorOverlay(self)
@@ -95,6 +100,8 @@ class MainWindow(QMainWindow):
             QPushButton#btnToggle:hover { background-color: #475569; }
             QPushButton#btnTabActive { background-color: #0284c7; color: #ffffff; }
             QPushButton#btnTabInactive { background-color: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+            QPushButton#btnEmergencyTab { background-color: #dc2626; color: #ffffff; font-weight: bold; }
+            QPushButton#btnEmergencyTab:hover { background-color: #ef4444; }
             """
         )
 
@@ -151,9 +158,14 @@ class MainWindow(QMainWindow):
         self.btn_view_camera.setObjectName("btnTabInactive")
         self.btn_view_camera.clicked.connect(lambda: self._switch_view(1))
 
+        self.btn_view_emergency = QPushButton("🚨 EMERGENCY (F1)")
+        self.btn_view_emergency.setObjectName("btnEmergencyTab")
+        self.btn_view_emergency.clicked.connect(lambda: self._switch_view(2))
+
         view_tabs.addWidget(self.btn_view_comm)
         view_tabs.addWidget(self.btn_view_camera)
         view_tabs.addStretch()
+        view_tabs.addWidget(self.btn_view_emergency)
 
         # Stacked Container
         self.view_stack = QStackedWidget()
@@ -175,6 +187,11 @@ class MainWindow(QMainWindow):
 
         cam_layout.addWidget(self.preview_label, stretch=1)
         self.view_stack.addWidget(camera_page)
+
+        # Page 2: Emergency Mode View
+        self.emergency_widget = EmergencyWidget(emergency_mgr=self.emergency_mgr)
+        self.emergency_widget.exit_requested.connect(lambda: self._switch_view(0))
+        self.view_stack.addWidget(self.emergency_widget)
 
         # 3. Bottom Controls
         controls = QHBoxLayout()
@@ -216,13 +233,27 @@ class MainWindow(QMainWindow):
             self.btn_view_comm.setObjectName("btnTabActive")
             self.btn_view_camera.setObjectName("btnTabInactive")
             self.comm_widget.register_all_targets()
-        else:
+        elif index == 1:
             self.btn_view_comm.setObjectName("btnTabInactive")
             self.btn_view_camera.setObjectName("btnTabActive")
             self.dwell_selector.clear_targets()
+        elif index == 2:
+            self.btn_view_comm.setObjectName("btnTabInactive")
+            self.btn_view_camera.setObjectName("btnTabInactive")
+            self.emergency_widget.register_all_targets()
 
         self.btn_view_comm.setStyle(self.btn_view_comm.style())
         self.btn_view_camera.setStyle(self.btn_view_camera.style())
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key.Key_F1:
+            if self.view_stack.currentIndex() == 2:
+                self._switch_view(0)
+            else:
+                self._switch_view(2)
+            event.accept()
+        else:
+            super().keyPressEvent(event)
 
     def _set_badge(self, label: QLabel, text: str, color: str) -> None:
         label.setText(text)
@@ -240,8 +271,10 @@ class MainWindow(QMainWindow):
         super().resizeEvent(event)
         if hasattr(self, "cursor_overlay"):
             self.cursor_overlay.setGeometry(self.rect())
-        if hasattr(self, "comm_widget"):
+        if self.view_stack.currentIndex() == 0 and hasattr(self, "comm_widget"):
             self.comm_widget.register_all_targets()
+        elif self.view_stack.currentIndex() == 2 and hasattr(self, "emergency_widget"):
+            self.emergency_widget.register_all_targets()
 
     def start_camera(self) -> None:
         if self.camera.open():
@@ -320,12 +353,20 @@ class MainWindow(QMainWindow):
                 current_time=now,
             )
 
-            # Update visual dwell states on Communication Board
-            self.comm_widget.update_all_dwell_feedbacks(
-                target_id=dwell_res.target_id,
-                progress=dwell_res.progress,
-                is_cooldown=(dwell_res.state.name == "COOLDOWN"),
-            )
+            # Update visual dwell states on active view
+            is_cooldown = (dwell_res.state.name == "COOLDOWN")
+            if self.view_stack.currentIndex() == 0:
+                self.comm_widget.update_all_dwell_feedbacks(
+                    target_id=dwell_res.target_id,
+                    progress=dwell_res.progress,
+                    is_cooldown=is_cooldown,
+                )
+            elif self.view_stack.currentIndex() == 2:
+                self.emergency_widget.update_all_dwell_feedbacks(
+                    target_id=dwell_res.target_id,
+                    progress=dwell_res.progress,
+                    is_cooldown=is_cooldown,
+                )
 
             self.cursor_overlay.update_cursor(cursor_pos, dwell_res)
         else:
@@ -334,7 +375,10 @@ class MainWindow(QMainWindow):
             self._set_badge(self.cursor_status_label, "● Tracking Lost", "#64748b")
             cursor_pos = self.cursor_manager.update(None, self.width(), self.height())
             dwell_res = self.dwell_selector.update((0, 0), tracking_valid=False, current_time=now)
-            self.comm_widget.update_all_dwell_feedbacks(None, 0.0, False)
+            if self.view_stack.currentIndex() == 0:
+                self.comm_widget.update_all_dwell_feedbacks(None, 0.0, False)
+            elif self.view_stack.currentIndex() == 2:
+                self.emergency_widget.update_all_dwell_feedbacks(None, 0.0, False)
             self.cursor_overlay.update_cursor(cursor_pos, dwell_res)
 
         rgb_frame = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)

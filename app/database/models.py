@@ -22,3 +22,16 @@ class UserProfile:
     dwell_time: float = 0.80
     smoothing_factor: float = 1.50
     calibration_quality: str = "GOOD"
+
+
+@dataclass
+class EmergencyAction:
+    """Configurable emergency action phrase and button definition."""
+    id: Optional[int] = None
+    label: str = ""
+    speech_text: str = ""
+    icon: str = "🚨"
+    accent_color: str = "#ef4444"
+    sort_order: int = 0
+    is_enabled: bool = True
+

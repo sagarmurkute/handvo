@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Tuple
 from app.database.database import Database
-from app.database.models import UserProfile
+from app.database.models import EmergencyAction, UserProfile
 
 
 class ProfileRepository:
@@ -162,3 +162,99 @@ class ProfileRepository:
                 (p_clean, limit),
             )
             return cursor.fetchall()
+
+    def get_emergency_actions(self, enabled_only: bool = True) -> List[EmergencyAction]:
+        """Retrieve configured emergency actions ordered by sort_order."""
+        with self.db.session() as conn:
+            cursor = conn.cursor()
+            query = """
+                SELECT id, label, speech_text, icon, accent_color, sort_order, is_enabled
+                FROM emergency_actions
+            """
+            if enabled_only:
+                query += " WHERE is_enabled = 1"
+            query += " ORDER BY sort_order ASC, id ASC;"
+
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            return [
+                EmergencyAction(
+                    id=row[0],
+                    label=row[1],
+                    speech_text=row[2],
+                    icon=row[3] or "🚨",
+                    accent_color=row[4] or "#ef4444",
+                    sort_order=row[5] or 0,
+                    is_enabled=bool(row[6]),
+                )
+                for row in rows
+            ]
+
+    def save_emergency_action(self, action: EmergencyAction) -> EmergencyAction:
+        """Create or update an emergency action in the database."""
+        with self.db.session() as conn:
+            cursor = conn.cursor()
+            if action.id is not None:
+                cursor.execute(
+                    """
+                    UPDATE emergency_actions
+                    SET label = ?, speech_text = ?, icon = ?, accent_color = ?, sort_order = ?, is_enabled = ?
+                    WHERE id = ?;
+                    """,
+                    (
+                        action.label,
+                        action.speech_text,
+                        action.icon,
+                        action.accent_color,
+                        action.sort_order,
+                        1 if action.is_enabled else 0,
+                        action.id,
+                    ),
+                )
+            else:
+                cursor.execute(
+                    """
+                    INSERT INTO emergency_actions (label, speech_text, icon, accent_color, sort_order, is_enabled)
+                    VALUES (?, ?, ?, ?, ?, ?);
+                    """,
+                    (
+                        action.label,
+                        action.speech_text,
+                        action.icon,
+                        action.accent_color,
+                        action.sort_order,
+                        1 if action.is_enabled else 0,
+                    ),
+                )
+                action.id = cursor.lastrowid
+            return action
+
+    def delete_emergency_action(self, action_id: int) -> bool:
+        """Delete an emergency action by ID."""
+        with self.db.session() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM emergency_actions WHERE id = ?;", (action_id,))
+            return cursor.rowcount > 0
+
+    def reset_emergency_actions(self) -> List[EmergencyAction]:
+        """Reset emergency actions to default predefined set."""
+        with self.db.session() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM emergency_actions;")
+            defaults = [
+                ("Call Help", "Emergency! Please help me immediately!", "🚨", "#ef4444", 0),
+                ("I Need a Doctor", "I need a doctor right now!", "👨‍⚕️", "#dc2626", 1),
+                ("I'm in Pain", "I am experiencing severe pain!", "⚡", "#f97316", 2),
+                ("I Can't Breathe", "I cannot breathe, please help me quickly!", "🫁", "#b91c1c", 3),
+                ("Yes", "Yes", "✅", "#22c55e", 4),
+                ("No", "No", "❌", "#64748b", 5),
+            ]
+            cursor.executemany(
+                """
+                INSERT INTO emergency_actions (label, speech_text, icon, accent_color, sort_order, is_enabled)
+                VALUES (?, ?, ?, ?, ?, 1);
+                """,
+                defaults,
+            )
+        return self.get_emergency_actions(enabled_only=False)
+
