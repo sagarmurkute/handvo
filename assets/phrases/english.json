@@ -1,0 +1,9 @@
+{
+  "language": "English",
+  "categories": {
+    "common": ["Yes", "No", "Hello", "Thank you", "Please", "Help", "I am okay", "Goodbye"],
+    "needs": ["I need water", "I need food", "I need the bathroom", "I want to rest", "I need help"],
+    "feelings": ["I am happy", "I am okay", "I am tired", "I am in pain", "I am cold", "I am hot"],
+    "actions": ["Come here", "Call someone", "Turn on", "Turn off", "Stop", "Look here"]
+  }
+}
