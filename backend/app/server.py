@@ -263,40 +263,44 @@ async def websocket_vision_endpoint(websocket: WebSocket):
                 _, jpg_buf = cv2.imencode('.jpg', small_frame, [cv2.IMWRITE_JPEG_QUALITY, 55])
                 frame_b64 = base64.b64encode(jpg_buf).decode('utf-8')
 
-                primary = hands[0] if len(hands) > 0 else None
-                landmarks_list = []
+                try:
+                    primary = hands[0] if len(hands) > 0 else None
+                    landmarks_list = []
 
-                if primary and primary.is_valid:
-                    cursor_pos = state.cursor_manager.update(primary, 1920, 1080)
-                    pinch_res = state.pinch_detector.detect(primary)
-                    landmarks_list = [{"x": pt.x, "y": pt.y, "z": pt.z} for pt in primary.landmarks]
+                    if primary and primary.is_valid:
+                        cursor_pos = state.cursor_manager.update(primary, 1920, 1080)
+                        pinch_res = state.pinch_detector.detect(primary)
+                        landmarks_list = [{"x": pt.x, "y": pt.y, "z": pt.z} for pt in primary.landmarks]
 
-                    packet = {
-                        "camera_active": True,
-                        "tracking_valid": cursor_pos.is_valid,
-                        "norm_x": float(cursor_pos.pixel_x) / 1920.0,
-                        "norm_y": float(cursor_pos.pixel_y) / 1080.0,
-                        "raw_x": cursor_pos.pixel_x,
-                        "raw_y": cursor_pos.pixel_y,
-                        "is_pinched": pinch_res.is_pinched,
-                        "pinch_distance": pinch_res.distance,
-                        "handedness": primary.handedness,
-                        "landmarks": landmarks_list,
-                        "image": f"data:image/jpeg;base64,{frame_b64}",
-                    }
-                else:
-                    cursor_pos = state.cursor_manager.update(None, 1920, 1080)
-                    packet = {
-                        "camera_active": True,
-                        "tracking_valid": False,
-                        "norm_x": 0.5,
-                        "norm_y": 0.5,
-                        "is_pinched": False,
-                        "landmarks": [],
-                        "image": f"data:image/jpeg;base64,{frame_b64}",
-                    }
+                        packet = {
+                            "camera_active": True,
+                            "tracking_valid": cursor_pos.is_valid,
+                            "norm_x": float(cursor_pos.pixel_x) / 1920.0,
+                            "norm_y": float(cursor_pos.pixel_y) / 1080.0,
+                            "raw_x": cursor_pos.pixel_x,
+                            "raw_y": cursor_pos.pixel_y,
+                            "is_pinched": pinch_res.is_pinched,
+                            "pinch_distance": pinch_res.pinch_distance,
+                            "handedness": primary.handedness,
+                            "landmarks": landmarks_list,
+                            "image": f"data:image/jpeg;base64,{frame_b64}",
+                        }
+                    else:
+                        cursor_pos = state.cursor_manager.update(None, 1920, 1080)
+                        packet = {
+                            "camera_active": True,
+                            "tracking_valid": False,
+                            "norm_x": 0.5,
+                            "norm_y": 0.5,
+                            "is_pinched": False,
+                            "landmarks": [],
+                            "image": f"data:image/jpeg;base64,{frame_b64}",
+                        }
 
-                await websocket.send_text(json.dumps(packet))
+                    await websocket.send_text(json.dumps(packet))
+                except Exception as frame_ex:
+                    print("Error processing frame packet:", frame_ex)
+
                 await asyncio.sleep(0.016)
         except (WebSocketDisconnect, asyncio.CancelledError):
             pass
