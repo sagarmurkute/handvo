@@ -19,12 +19,16 @@ from PySide6.QtWidgets import (
 from app.communication.communication_board import CommunicationBoardModel
 from app.communication.emergency_model import EmergencyManager
 from app.config import CONFIG
+from app.database.database import Database
+from app.database.models import UserProfile
+from app.database.profile_repository import ProfileRepository
 from app.gestures.cursor import HandCursorManager
 from app.gestures.dwell import DwellSelector
 from app.gestures.pinch import PinchDetector
 from app.ui.communication_widget import CommunicationWidget
 from app.ui.cursor_overlay import CursorOverlay
 from app.ui.emergency_widget import EmergencyWidget
+from app.ui.profile_manager_dialog import ProfileManagerDialog
 from app.vision.camera import Camera
 from app.vision.hand_detector import HandDetector
 
@@ -34,13 +38,19 @@ class MainWindow(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
+        self.repo = ProfileRepository(Database())
+        self.active_profile = self.repo.get_active_profile()
+
         self.camera = Camera(device_index=0)
         self.hand_detector = HandDetector()
         self.cursor_manager = HandCursorManager()
         self.pinch_detector = PinchDetector()
-        self.dwell_selector = DwellSelector(dwell_time_sec=0.80, cooldown_sec=0.60)
+        self.dwell_selector = DwellSelector(
+            dwell_time_sec=self.active_profile.dwell_time,
+            cooldown_sec=0.60,
+        )
         self.comm_model = CommunicationBoardModel()
-        self.emergency_mgr = EmergencyManager()
+        self.emergency_mgr = EmergencyManager(repository=self.repo)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._update_frame)
@@ -142,8 +152,14 @@ class MainWindow(QMainWindow):
         status_box.addWidget(self.pinch_status_label)
         status_box.addWidget(self.cursor_status_label)
 
+        self.btn_profile = QPushButton(f"👤 {self.active_profile.name}")
+        self.btn_profile.setObjectName("btnToggle")
+        self.btn_profile.setToolTip("Open Caregiver Profile Manager")
+        self.btn_profile.clicked.connect(self.open_profile_manager)
+
         header.addLayout(header_text)
         header.addStretch()
+        header.addWidget(self.btn_profile)
         header.addLayout(status_box)
 
         # 2. View Switcher Tabs
@@ -314,6 +330,21 @@ class MainWindow(QMainWindow):
 
         if was_running:
             self.start_camera()
+
+    def open_profile_manager(self) -> None:
+        dlg = ProfileManagerDialog(repository=self.repo, parent=self)
+        dlg.profile_switched.connect(self._on_profile_switched)
+        dlg.exec()
+
+    def _on_profile_switched(self, new_profile: UserProfile) -> None:
+        self.active_profile = new_profile
+        self.btn_profile.setText(f"👤 {new_profile.name}")
+        self.dwell_selector.dwell_time = new_profile.dwell_time
+        if hasattr(self, "comm_widget"):
+            self.comm_widget.register_all_targets()
+        if hasattr(self, "emergency_widget"):
+            self.emergency_widget.register_all_targets()
+
 
     def _update_frame(self) -> None:
         now = time.perf_counter()

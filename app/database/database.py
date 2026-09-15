@@ -47,6 +47,14 @@ class Database:
                     dwell_time REAL DEFAULT 0.80,
                     smoothing_factor REAL DEFAULT 1.50,
                     calibration_quality TEXT DEFAULT 'GOOD',
+                    is_archived INTEGER DEFAULT 0,
+                    is_active INTEGER DEFAULT 0,
+                    language TEXT DEFAULT 'en',
+                    tts_rate INTEGER DEFAULT 150,
+                    tts_volume REAL DEFAULT 1.0,
+                    dwell_sound INTEGER DEFAULT 1,
+                    high_contrast INTEGER DEFAULT 0,
+                    ui_scale TEXT DEFAULT 'medium',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
                 """
@@ -64,6 +72,14 @@ class Database:
                 ("open_hand_span", "REAL DEFAULT 0.25"),
                 ("pinch_release_threshold", "REAL DEFAULT 0.08"),
                 ("calibration_quality", "TEXT DEFAULT 'GOOD'"),
+                ("is_archived", "INTEGER DEFAULT 0"),
+                ("is_active", "INTEGER DEFAULT 0"),
+                ("language", "TEXT DEFAULT 'en'"),
+                ("tts_rate", "INTEGER DEFAULT 150"),
+                ("tts_volume", "REAL DEFAULT 1.0"),
+                ("dwell_sound", "INTEGER DEFAULT 1"),
+                ("high_contrast", "INTEGER DEFAULT 0"),
+                ("ui_scale", "TEXT DEFAULT 'medium'"),
             ]
             cursor.execute("PRAGMA table_info(profiles);")
             existing_cols = {col[1] for col in cursor.fetchall()}
@@ -78,30 +94,48 @@ class Database:
                 """
                 CREATE TABLE IF NOT EXISTS custom_phrases (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    profile_id INTEGER,
+                    profile_id INTEGER DEFAULT 1,
                     category TEXT NOT NULL,
                     label TEXT NOT NULL,
                     text TEXT NOT NULL,
+                    icon TEXT DEFAULT '💬',
                     accent_color TEXT DEFAULT '#38bdf8',
+                    sort_order INTEGER DEFAULT 0,
                     FOREIGN KEY (profile_id) REFERENCES profiles(id)
                 );
                 """
             )
+            cursor.execute("PRAGMA table_info(custom_phrases);")
+            existing_cp_cols = {col[1] for col in cursor.fetchall()}
+            for col_name, col_type in [("icon", "TEXT DEFAULT '💬'"), ("sort_order", "INTEGER DEFAULT 0")]:
+                if col_name not in existing_cp_cols:
+                    try:
+                        cursor.execute(f"ALTER TABLE custom_phrases ADD COLUMN {col_name} {col_type};")
+                    except Exception:
+                        pass
 
-            # Learned phrase transition frequency table for smart predictions
+            # Learned phrase transition frequency table for smart predictions per profile
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS phrase_frequencies (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    profile_id INTEGER DEFAULT 1,
                     prev_token TEXT NOT NULL,
                     next_token TEXT NOT NULL,
                     category_id TEXT DEFAULT 'common',
                     frequency INTEGER DEFAULT 1,
                     last_used TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    UNIQUE(prev_token, next_token)
+                    UNIQUE(profile_id, prev_token, next_token)
                 );
                 """
             )
+            cursor.execute("PRAGMA table_info(phrase_frequencies);")
+            existing_pf_cols = {col[1] for col in cursor.fetchall()}
+            if "profile_id" not in existing_pf_cols:
+                try:
+                    cursor.execute("ALTER TABLE phrase_frequencies ADD COLUMN profile_id INTEGER DEFAULT 1;")
+                except Exception:
+                    pass
 
             # High-priority emergency actions table
             cursor.execute(

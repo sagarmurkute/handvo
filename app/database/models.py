@@ -6,7 +6,7 @@ from typing import Optional
 
 @dataclass
 class UserProfile:
-    """User preferences and calibration profile."""
+    """User preferences, speech parameters, accessibility, and calibration profile."""
     id: Optional[int] = None
     name: str = "Default User"
     dominant_hand: str = "Right"
@@ -22,6 +22,28 @@ class UserProfile:
     dwell_time: float = 0.80
     smoothing_factor: float = 1.50
     calibration_quality: str = "GOOD"
+    is_archived: bool = False
+    is_active: bool = False
+    language: str = "en"
+    tts_rate: int = 150
+    tts_volume: float = 1.0
+    dwell_sound: bool = True
+    high_contrast: bool = False
+    ui_scale: str = "medium"
+
+
+@dataclass
+class CustomPhrase:
+    """Caregiver or user configured phrase item within a category."""
+    id: Optional[int] = None
+    profile_id: int = 1
+    category: str = "common"
+    label: str = ""
+    text: str = ""
+    icon: str = "💬"
+    accent_color: str = "#38bdf8"
+    sort_order: int = 0
+
 
 
 @dataclass

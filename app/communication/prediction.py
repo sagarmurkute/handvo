@@ -150,10 +150,11 @@ class SmartPredictionEngine:
         current_sentence: str,
         active_category_id: str = "common",
         limit: int = 5,
+        profile_id: int = 1,
     ) -> List[PredictionCandidate]:
         """
         Generate top 3–5 contextual suggestions by combining n-grams,
-        category priors, and SQLite-learned user frequencies.
+        category priors, and SQLite-learned user frequencies for the given profile.
         """
         raw_text = current_sentence.strip()
         lower_text = raw_text.lower()
@@ -189,9 +190,9 @@ class SmartPredictionEngine:
                 score=25.0,
             )
 
-        # 2. Query SQLite Learned Frequencies for this prefix
+        # 2. Query SQLite Learned Frequencies for this prefix and profile
         try:
-            freq_rows = self.repo.get_top_predictions(matched_prefix, limit=limit)
+            freq_rows = self.repo.get_top_predictions(matched_prefix, limit=limit, profile_id=profile_id)
             for next_tok, freq in freq_rows:
                 if next_tok in candidates_dict:
                     candidates_dict[next_tok].score += freq * 10.0
@@ -243,8 +244,9 @@ class SmartPredictionEngine:
         prev_sentence: str,
         selected_phrase: str,
         category_id: str = "common",
+        profile_id: int = 1,
     ) -> None:
-        """Record selection pair into SQLite to adaptively boost future rankings."""
+        """Record selection pair into SQLite to adaptively boost future rankings for this profile."""
         lower = prev_sentence.strip().lower()
         prefix = ""
         for p in self.PREFIX_MAP.keys():
@@ -255,7 +257,7 @@ class SmartPredictionEngine:
             prefix = lower.split()[-1]
 
         try:
-            self.repo.record_phrase_usage(prefix, selected_phrase, category_id)
+            self.repo.record_phrase_usage(prefix, selected_phrase, category_id, profile_id=profile_id)
         except Exception:
             pass
 
