@@ -25,10 +25,12 @@ from app.database.profile_repository import ProfileRepository
 from app.gestures.cursor import HandCursorManager
 from app.gestures.dwell import DwellSelector
 from app.gestures.pinch import PinchDetector
+from app.ui.accessibility_dialog import AccessibilityDialog
 from app.ui.communication_widget import CommunicationWidget
 from app.ui.cursor_overlay import CursorOverlay
 from app.ui.emergency_widget import EmergencyWidget
 from app.ui.profile_manager_dialog import ProfileManagerDialog
+from app.ui.theme.theme_manager import ThemeManager
 from app.vision.camera import Camera
 from app.vision.hand_detector import HandDetector
 
@@ -47,9 +49,10 @@ class MainWindow(QMainWindow):
         self.pinch_detector = PinchDetector()
         self.dwell_selector = DwellSelector(
             dwell_time_sec=self.active_profile.dwell_time,
-            cooldown_sec=0.60,
+            cooldown_sec=getattr(self.active_profile, "cooldown_time", 0.60),
         )
         self.comm_model = CommunicationBoardModel()
+        self.comm_model.set_language(self.active_profile.language)
         self.emergency_mgr = EmergencyManager(repository=self.repo)
 
         self.timer = QTimer(self)
@@ -67,6 +70,9 @@ class MainWindow(QMainWindow):
         self.cursor_overlay = CursorOverlay(self)
         self.cursor_overlay.setGeometry(self.rect())
         self.cursor_overlay.show()
+
+        # Apply active profile accessibility configuration
+        self.apply_accessibility_settings(self.active_profile)
 
     def _init_window(self) -> None:
         self.setWindowTitle(CONFIG.window_title)
@@ -157,9 +163,15 @@ class MainWindow(QMainWindow):
         self.btn_profile.setToolTip("Open Caregiver Profile Manager")
         self.btn_profile.clicked.connect(self.open_profile_manager)
 
+        self.btn_settings = QPushButton("⚙️ Settings (F2)")
+        self.btn_settings.setObjectName("btnToggle")
+        self.btn_settings.setToolTip("Open Accessibility & Personalization Settings (F2)")
+        self.btn_settings.clicked.connect(self.open_accessibility_settings)
+
         header.addLayout(header_text)
         header.addStretch()
         header.addWidget(self.btn_profile)
+        header.addWidget(self.btn_settings)
         header.addLayout(status_box)
 
         # 2. View Switcher Tabs
@@ -268,6 +280,9 @@ class MainWindow(QMainWindow):
             else:
                 self._switch_view(2)
             event.accept()
+        elif event.key() == Qt.Key.Key_F2:
+            self.open_accessibility_settings()
+            event.accept()
         else:
             super().keyPressEvent(event)
 
@@ -336,14 +351,57 @@ class MainWindow(QMainWindow):
         dlg.profile_switched.connect(self._on_profile_switched)
         dlg.exec()
 
-    def _on_profile_switched(self, new_profile: UserProfile) -> None:
-        self.active_profile = new_profile
-        self.btn_profile.setText(f"👤 {new_profile.name}")
-        self.dwell_selector.dwell_time = new_profile.dwell_time
+    def open_accessibility_settings(self) -> None:
+        dlg = AccessibilityDialog(profile=self.active_profile, repository=self.repo, parent=self)
+        dlg.settings_changed.connect(self.apply_accessibility_settings)
+        dlg.exec()
+
+    def apply_accessibility_settings(self, profile: UserProfile) -> None:
+        """Apply accessibility and personalization options live to all subsystems."""
+        self.active_profile = profile
+        self.btn_profile.setText(f"👤 {profile.name}")
+
+        # 1. Update Dwell Timing
+        self.dwell_selector.dwell_time = profile.dwell_time
+        self.dwell_selector.cooldown_sec = getattr(profile, "cooldown_time", 0.60)
+
+        # 2. Update Hand Cursor Appearance
+        if hasattr(self, "cursor_overlay"):
+            self.cursor_overlay.set_appearance(
+                size=getattr(profile, "cursor_size", "medium"),
+                color=getattr(profile, "cursor_color", "#38bdf8"),
+                reduced_motion=getattr(profile, "reduced_motion", False),
+            )
+
+        # 3. Update Multilingual AAC Language
+        if hasattr(self, "comm_model"):
+            self.comm_model.set_language(profile.language)
+        if hasattr(self, "comm_widget"):
+            self.comm_widget._populate_categories()
+
+        # 4. Update UI Theme & Button Sizing
+        theme_name = getattr(profile, "theme", "dark")
+        btn_size = getattr(profile, "button_size", "medium")
+        if profile.high_contrast:
+            theme_name = "high_contrast"
+        self.setStyleSheet(ThemeManager.get_stylesheet(theme=theme_name, button_size=btn_size))
+
+        # 5. Update TTS Speech Settings
+        if hasattr(self, "comm_widget") and hasattr(self.comm_widget, "speech_engine"):
+            self.comm_widget.speech_engine.set_rate(profile.speech_rate)
+            self.comm_widget.speech_engine.set_volume(profile.speech_volume)
+        if hasattr(self, "emergency_widget") and hasattr(self.emergency_widget, "speech_engine"):
+            self.emergency_widget.speech_engine.set_rate(profile.speech_rate)
+            self.emergency_widget.speech_engine.set_volume(profile.speech_volume)
+
+        # 6. Refresh hit targets
         if hasattr(self, "comm_widget"):
             self.comm_widget.register_all_targets()
         if hasattr(self, "emergency_widget"):
             self.emergency_widget.register_all_targets()
+
+    def _on_profile_switched(self, new_profile: UserProfile) -> None:
+        self.apply_accessibility_settings(new_profile)
 
 
     def _update_frame(self) -> None:

@@ -37,7 +37,12 @@ class ProfileRepository:
             tts_volume=float(row[19]) if len(row) > 19 and row[19] is not None else 1.0,
             dwell_sound=bool(row[20]) if len(row) > 20 and row[20] is not None else True,
             high_contrast=bool(row[21]) if len(row) > 21 and row[21] is not None else False,
-            ui_scale=row[22] if len(row) > 22 and row[22] else "medium",
+            theme=row[22] if len(row) > 22 and row[22] else "dark",
+            ui_scale=row[23] if len(row) > 23 and row[23] else "medium",
+            cooldown_time=float(row[24] if len(row) > 24 and row[24] is not None else 0.60),
+            cursor_size=row[25] if len(row) > 25 and row[25] is not None else 14,
+            cursor_color=row[26] if len(row) > 26 and row[26] else "#38bdf8",
+            reduced_motion=bool(row[27]) if len(row) > 27 and row[27] is not None else False,
         )
 
     def _select_columns_sql(self) -> str:
@@ -47,7 +52,8 @@ class ProfileRepository:
                    open_hand_span, pinch_threshold, pinch_release_threshold,
                    dwell_time, smoothing_factor, calibration_quality,
                    is_archived, is_active, language, tts_rate, tts_volume,
-                   dwell_sound, high_contrast, ui_scale
+                   dwell_sound, high_contrast, theme, ui_scale,
+                   cooldown_time, cursor_size, cursor_color, reduced_motion
             FROM profiles
         """
 
@@ -81,8 +87,9 @@ class ProfileRepository:
                     open_hand_span, pinch_threshold, pinch_release_threshold,
                     dwell_time, smoothing_factor, calibration_quality,
                     is_archived, is_active, language, tts_rate, tts_volume,
-                    dwell_sound, high_contrast, ui_scale
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 'en', 150, 1.0, 1, 0, 'medium');
+                    dwell_sound, high_contrast, theme, ui_scale,
+                    cooldown_time, cursor_size, cursor_color, reduced_motion
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 'en', 150, 1.0, 1, 0, 'dark', 'medium', 0.60, 14, '#38bdf8', 0);
                 """,
                 ("Default User", "Right", 0.50, 0.50, 0.20, 0.80, 0.20, 0.80, 0.25, 0.05, 0.08, 0.80, 1.50, "GOOD"),
             )
@@ -132,8 +139,9 @@ class ProfileRepository:
                     open_hand_span, pinch_threshold, pinch_release_threshold,
                     dwell_time, smoothing_factor, calibration_quality,
                     is_archived, is_active, language, tts_rate, tts_volume,
-                    dwell_sound, high_contrast, ui_scale
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    dwell_sound, high_contrast, theme, ui_scale,
+                    cooldown_time, cursor_size, cursor_color, reduced_motion
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
                 (
                     profile.name,
@@ -157,7 +165,12 @@ class ProfileRepository:
                     profile.tts_volume,
                     1 if profile.dwell_sound else 0,
                     1 if profile.high_contrast else 0,
+                    profile.theme,
                     profile.ui_scale,
+                    profile.cooldown_time,
+                    profile.cursor_size,
+                    profile.cursor_color,
+                    1 if profile.reduced_motion else 0,
                 ),
             )
             profile.id = cursor.lastrowid
@@ -199,7 +212,12 @@ class ProfileRepository:
                     tts_volume = ?,
                     dwell_sound = ?,
                     high_contrast = ?,
-                    ui_scale = ?
+                    theme = ?,
+                    ui_scale = ?,
+                    cooldown_time = ?,
+                    cursor_size = ?,
+                    cursor_color = ?,
+                    reduced_motion = ?
                 WHERE id = ?;
                 """,
                 (
@@ -224,7 +242,12 @@ class ProfileRepository:
                     profile.tts_volume,
                     1 if profile.dwell_sound else 0,
                     1 if profile.high_contrast else 0,
+                    profile.theme,
                     profile.ui_scale,
+                    profile.cooldown_time,
+                    profile.cursor_size,
+                    profile.cursor_color,
+                    1 if profile.reduced_motion else 0,
                     profile.id,
                 ),
             )
@@ -259,7 +282,12 @@ class ProfileRepository:
             tts_volume=source.tts_volume,
             dwell_sound=source.dwell_sound,
             high_contrast=source.high_contrast,
+            theme=source.theme,
             ui_scale=source.ui_scale,
+            cooldown_time=source.cooldown_time,
+            cursor_size=source.cursor_size,
+            cursor_color=source.cursor_color,
+            reduced_motion=source.reduced_motion,
         )
         new_prof = self.create_profile(cloned)
         new_id = new_prof.id
@@ -384,7 +412,12 @@ class ProfileRepository:
             "tts_volume": profile.tts_volume,
             "dwell_sound": profile.dwell_sound,
             "high_contrast": profile.high_contrast,
+            "theme": profile.theme,
             "ui_scale": profile.ui_scale,
+            "cooldown_time": profile.cooldown_time,
+            "cursor_size": profile.cursor_size,
+            "cursor_color": profile.cursor_color,
+            "reduced_motion": profile.reduced_motion,
             "custom_phrases": phrases_data,
             "phrase_frequencies": frequencies_data,
         }
@@ -415,7 +448,12 @@ class ProfileRepository:
             tts_volume=float(data.get("tts_volume", 1.0)),
             dwell_sound=bool(data.get("dwell_sound", True)),
             high_contrast=bool(data.get("high_contrast", False)),
+            theme=data.get("theme", "dark"),
             ui_scale=data.get("ui_scale", "medium"),
+            cooldown_time=float(data.get("cooldown_time", 0.60)),
+            cursor_size=int(data.get("cursor_size", 14)),
+            cursor_color=data.get("cursor_color", "#38bdf8"),
+            reduced_motion=bool(data.get("reduced_motion", False)),
             is_active=False,
             is_archived=False,
         )

@@ -3,7 +3,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 import sqlite3
-from typing import Generator, Optional
+from typing import Generator, Optional, Union
 
 DB_PATH = Path(__file__).resolve().parent.parent.parent / "assets" / "handvo.db"
 
@@ -11,8 +11,8 @@ DB_PATH = Path(__file__).resolve().parent.parent.parent / "assets" / "handvo.db"
 class Database:
     """Manages SQLite database connection, table schemas, and migrations."""
 
-    def __init__(self, db_path: Optional[Path] = None) -> None:
-        self.db_path = db_path or DB_PATH
+    def __init__(self, db_path: Optional[Union[Path, str]] = None) -> None:
+        self.db_path = Path(db_path) if db_path is not None else DB_PATH
         self._init_db()
 
     @contextmanager
@@ -45,6 +45,9 @@ class Database:
                     pinch_threshold REAL DEFAULT 0.05,
                     pinch_release_threshold REAL DEFAULT 0.08,
                     dwell_time REAL DEFAULT 0.80,
+                    cooldown_time REAL DEFAULT 0.60,
+                    cursor_size INTEGER DEFAULT 14,
+                    cursor_color TEXT DEFAULT '#38bdf8',
                     smoothing_factor REAL DEFAULT 1.50,
                     calibration_quality TEXT DEFAULT 'GOOD',
                     is_archived INTEGER DEFAULT 0,
@@ -54,7 +57,9 @@ class Database:
                     tts_volume REAL DEFAULT 1.0,
                     dwell_sound INTEGER DEFAULT 1,
                     high_contrast INTEGER DEFAULT 0,
+                    theme TEXT DEFAULT 'dark',
                     ui_scale TEXT DEFAULT 'medium',
+                    reduced_motion INTEGER DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
                 """
@@ -79,7 +84,12 @@ class Database:
                 ("tts_volume", "REAL DEFAULT 1.0"),
                 ("dwell_sound", "INTEGER DEFAULT 1"),
                 ("high_contrast", "INTEGER DEFAULT 0"),
+                ("theme", "TEXT DEFAULT 'dark'"),
                 ("ui_scale", "TEXT DEFAULT 'medium'"),
+                ("cooldown_time", "REAL DEFAULT 0.60"),
+                ("cursor_size", "INTEGER DEFAULT 14"),
+                ("cursor_color", "TEXT DEFAULT '#38bdf8'"),
+                ("reduced_motion", "INTEGER DEFAULT 0"),
             ]
             cursor.execute("PRAGMA table_info(profiles);")
             existing_cols = {col[1] for col in cursor.fetchall()}

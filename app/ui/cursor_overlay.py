@@ -20,7 +20,33 @@ class CursorOverlay(QWidget):
 
         self._cursor_pos: Optional[CursorPosition] = None
         self._dwell_res: Optional[DwellResult] = None
+        self.cursor_size: int = 14
+        self.cursor_size_name: str = "medium"
+        self.base_radius: float = 14.0
+        self.cursor_color: str = "#38bdf8"
+        self.reduced_motion: bool = False
         self.show_debug: bool = False
+
+    def set_appearance(
+        self,
+        size: int | str = 14,
+        color: str = "#38bdf8",
+        reduced_motion: bool = False,
+    ) -> None:
+        """Update cursor visual properties live."""
+        if isinstance(size, str):
+            size_map = {"small": 10, "medium": 14, "large": 16, "extra_large": 22}
+            size_val = size_map.get(size.lower(), 14)
+            self.cursor_size_name = size
+        else:
+            size_val = int(size)
+            self.cursor_size_name = "medium"
+
+        self.cursor_size = max(8, min(36, size_val))
+        self.base_radius = float(self.cursor_size)
+        self.cursor_color = color
+        self.reduced_motion = reduced_motion
+        self.update()
 
     def update_cursor(
         self,
@@ -44,32 +70,40 @@ class CursorOverlay(QWidget):
 
         cx = float(self._cursor_pos.pixel_x)
         cy = float(self._cursor_pos.pixel_y)
+        r = float(self.cursor_size)
 
-        # Draw outer subtle glow
-        glow_pen = QPen(QColor(56, 189, 248, 80), 6)
-        painter.setPen(glow_pen)
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawEllipse(QPointF(cx, cy), 18, 18)
+        base_color = QColor(self.cursor_color)
 
-        # Draw main cursor ring
-        ring_color = QColor("#38bdf8")
+        # 1. Outer subtle glow (omitted if reduced_motion is enabled)
+        if not self.reduced_motion:
+            glow_color = QColor(base_color)
+            glow_color.setAlpha(65)
+            glow_pen = QPen(glow_color, r * 0.4)
+            painter.setPen(glow_pen)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawEllipse(QPointF(cx, cy), r * 1.3, r * 1.3)
+
+        # 2. Main cursor ring
+        ring_color = base_color
         if self._dwell_res and self._dwell_res.state == DwellState.COOLDOWN:
             ring_color = QColor("#10b981")
         elif self._dwell_res and self._dwell_res.state == DwellState.DWELLING:
             ring_color = QColor("#f59e0b")
 
-        painter.setPen(QPen(ring_color, 2.5))
-        painter.drawEllipse(QPointF(cx, cy), 14, 14)
+        painter.setPen(QPen(ring_color, max(2.0, r * 0.18)))
+        painter.drawEllipse(QPointF(cx, cy), r, r)
 
-        # Draw center point
+        # 3. Center dot
+        dot_r = max(2.5, r * 0.25)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QBrush(ring_color))
-        painter.drawEllipse(QPointF(cx, cy), 3.5, 3.5)
+        painter.drawEllipse(QPointF(cx, cy), dot_r, dot_r)
 
-        # Draw dwell progress arc
+        # 4. Draw dwell progress arc
         if self._dwell_res and self._dwell_res.progress > 0.0:
-            arc_rect = QRectF(cx - 20, cy - 20, 40, 40)
-            arc_pen = QPen(QColor("#22c55e"), 4)
+            arc_r = r * 1.45
+            arc_rect = QRectF(cx - arc_r, cy - arc_r, arc_r * 2.0, arc_r * 2.0)
+            arc_pen = QPen(QColor("#22c55e"), max(3.0, r * 0.28))
             arc_pen.setCapStyle(Qt.PenCapStyle.RoundCap)
             painter.setPen(arc_pen)
             painter.setBrush(Qt.BrushStyle.NoBrush)
@@ -77,3 +111,4 @@ class CursorOverlay(QWidget):
             start_angle = 90 * 16
             span_angle = int(-self._dwell_res.progress * 360 * 16)
             painter.drawArc(arc_rect, start_angle, span_angle)
+
