@@ -6,12 +6,13 @@ from typing import Callable, Dict, List, Optional
 
 @dataclass
 class CommunicationItem:
-    """A word, phrase, or action item on the communication board."""
-
+    """A word, phrase, or action card on the communication board."""
     item_id: str
     label: str
     text: str
     category_id: str
+    icon: str = ""
+    subtitle: str = ""
     accent_color: str = "#38bdf8"
     enabled: bool = True
 
@@ -19,7 +20,6 @@ class CommunicationItem:
 @dataclass
 class CommunicationCategory:
     """A collection of related communication items."""
-
     category_id: str
     name: str
     icon: str
@@ -44,97 +44,112 @@ class CommunicationBoardModel:
         self._init_default_content()
 
     def _init_default_content(self) -> None:
-        """Populate initial categories and accessible communication items."""
+        """Populate initial 6 categories and rich accessible communication cards."""
+        # 1. Common
         common = CommunicationCategory(
             category_id="common",
             name="Common",
             icon="💬",
             accent_color="#38bdf8",
             items=[
-                CommunicationItem("comm_yes", "✅ Yes", "Yes", "common", "#22c55e"),
-                CommunicationItem("comm_no", "❌ No", "No", "common", "#ef4444"),
-                CommunicationItem("comm_hello", "👋 Hello", "Hello", "common", "#38bdf8"),
-                CommunicationItem("comm_thanks", "🙏 Thank you", "Thank you", "common", "#a855f7"),
-                CommunicationItem("comm_please", "🤲 Please", "Please", "common", "#3b82f6"),
-                CommunicationItem("comm_help", "🚨 Help", "Help", "common", "#f59e0b"),
-                CommunicationItem("comm_okay", "👍 I am okay", "I am okay", "common", "#10b981"),
-                CommunicationItem("comm_goodbye", "👋 Goodbye", "Goodbye", "common", "#64748b"),
+                CommunicationItem("comm_yes", "Yes", "Yes", "common", "✅", "Agree", "#22c55e"),
+                CommunicationItem("comm_no", "No", "No", "common", "❌", "Disagree", "#ef4444"),
+                CommunicationItem("comm_hello", "Hello", "Hello", "common", "👋", "Greetings", "#38bdf8"),
+                CommunicationItem("comm_thanks", "Thank You", "Thank you", "common", "🙏", "Gratitude", "#a855f7"),
+                CommunicationItem("comm_please", "Please", "Please", "common", "🤲", "Polite request", "#3b82f6"),
+                CommunicationItem("comm_help", "Help", "I need help", "common", "🚨", "Urgent assistance", "#f59e0b"),
+                CommunicationItem("comm_okay", "I Am Okay", "I am okay", "common", "👍", "Fine status", "#10b981"),
+                CommunicationItem("comm_goodbye", "Goodbye", "Goodbye", "common", "👋", "Farewell", "#64748b"),
             ],
         )
 
+        # 2. Needs
         needs = CommunicationCategory(
             category_id="needs",
             name="Needs",
             icon="💧",
             accent_color="#06b6d4",
             items=[
-                CommunicationItem("need_water", "💧 Water", "I need water", "needs", "#06b6d4"),
-                CommunicationItem("need_food", "🍲 Food", "I need food", "needs", "#f97316"),
-                CommunicationItem("need_bathroom", "🚻 Bathroom", "I need the bathroom", "needs", "#8b5cf6"),
-                CommunicationItem("need_help", "🆘 I need help", "I need help", "needs", "#ef4444"),
-                CommunicationItem("need_rest", "🛌 Rest / Sleep", "I want to rest", "needs", "#6366f1"),
-                CommunicationItem("need_glasses", "👓 Glasses", "I need my glasses", "needs", "#14b8a6"),
+                CommunicationItem("need_water", "Water", "I need water", "needs", "💧", "Drink water", "#06b6d4"),
+                CommunicationItem("need_food", "Food", "I need food", "needs", "🍲", "Eat food", "#f97316"),
+                CommunicationItem("need_bathroom", "Bathroom", "I need the bathroom", "needs", "🚻", "Restroom", "#8b5cf6"),
+                CommunicationItem("need_rest", "Rest", "I want to rest", "needs", "🛌", "Sleep / Lie down", "#6366f1"),
+                CommunicationItem("need_glasses", "Glasses", "I need my glasses", "needs", "👓", "Eyewear", "#14b8a6"),
+                CommunicationItem("need_medicine", "Medicine", "I need my medicine", "needs", "💊", "Medication", "#ec4899"),
+                CommunicationItem("need_blanket", "Blanket", "I need a blanket", "needs", "🧣", "Warmth", "#eab308"),
+                CommunicationItem("need_help", "Assistance", "I need assistance", "needs", "🆘", "Caregiver help", "#ef4444"),
             ],
         )
 
+        # 3. Feelings
         feelings = CommunicationCategory(
             category_id="feelings",
             name="Feelings",
             icon="❤️",
             accent_color="#ec4899",
             items=[
-                CommunicationItem("feel_okay", "😊 I am okay", "I am okay", "feelings", "#10b981"),
-                CommunicationItem("feel_tired", "🥱 I am tired", "I am tired", "feelings", "#64748b"),
-                CommunicationItem("feel_pain", "😣 I am in pain", "I am in pain", "feelings", "#ef4444"),
-                CommunicationItem("feel_happy", "😄 I am happy", "I am happy", "feelings", "#eab308"),
-                CommunicationItem("feel_sad", "😢 I am sad", "I am sad", "feelings", "#3b82f6"),
-                CommunicationItem("feel_cold", "🥶 I am cold", "I am cold", "feelings", "#06b6d4"),
-                CommunicationItem("feel_hot", "🥵 I am hot", "I am hot", "feelings", "#f97316"),
+                CommunicationItem("feel_happy", "Happy", "I am happy", "feelings", "😄", "Feeling good", "#eab308"),
+                CommunicationItem("feel_okay", "Okay", "I am okay", "feelings", "😊", "Normal", "#10b981"),
+                CommunicationItem("feel_pain", "In Pain", "I am in pain", "feelings", "😣", "Hurting", "#ef4444"),
+                CommunicationItem("feel_tired", "Tired", "I am tired", "feelings", "🥱", "Exhausted", "#64748b"),
+                CommunicationItem("feel_sad", "Sad", "I am sad", "feelings", "😢", "Feeling down", "#3b82f6"),
+                CommunicationItem("feel_cold", "Cold", "I am cold", "feelings", "🥶", "Chilly", "#06b6d4"),
+                CommunicationItem("feel_hot", "Hot", "I am hot", "feelings", "🥵", "Too warm", "#f97316"),
+                CommunicationItem("feel_scared", "Scared", "I feel scared", "feelings", "😨", "Worried", "#a855f7"),
             ],
         )
 
+        # 4. People
         people = CommunicationCategory(
             category_id="people",
             name="People",
             icon="👥",
             accent_color="#8b5cf6",
             items=[
-                CommunicationItem("ppl_doctor", "👨‍⚕️ Doctor", "Doctor", "people", "#06b6d4"),
-                CommunicationItem("ppl_nurse", "👩‍⚕️ Nurse", "Nurse", "people", "#ec4899"),
-                CommunicationItem("ppl_family", "👨‍👩‍👧 Family", "Family", "people", "#f59e0b"),
-                CommunicationItem("ppl_friend", "🤝 Friend", "Friend", "people", "#10b981"),
-                CommunicationItem("ppl_caregiver", "🧑‍🦽 Caregiver", "Caregiver", "people", "#8b5cf6"),
-                CommunicationItem("ppl_assistant", "💼 Assistant", "Assistant", "people", "#38bdf8"),
+                CommunicationItem("ppl_doctor", "Doctor", "Doctor", "people", "👨‍⚕️", "Physician", "#06b6d4"),
+                CommunicationItem("ppl_nurse", "Nurse", "Nurse", "people", "👩‍⚕️", "Medical nurse", "#ec4899"),
+                CommunicationItem("ppl_family", "Family", "Family", "people", "👨‍👩‍👧", "Loved ones", "#f59e0b"),
+                CommunicationItem("ppl_friend", "Friend", "Friend", "people", "🤝", "Companion", "#10b981"),
+                CommunicationItem("ppl_caregiver", "Caregiver", "Caregiver", "people", "🧑‍🦽", "Attendant", "#8b5cf6"),
+                CommunicationItem("ppl_assistant", "Assistant", "Assistant", "people", "💼", "Helper", "#38bdf8"),
+                CommunicationItem("ppl_visitor", "Visitor", "Visitor", "people", "🚪", "Guest", "#14b8a6"),
+                CommunicationItem("ppl_everyone", "Everyone", "Everyone", "people", "👥", "All people", "#6366f1"),
             ],
         )
 
+        # 5. Places
         places = CommunicationCategory(
             category_id="places",
             name="Places",
             icon="📍",
             accent_color="#10b981",
             items=[
-                CommunicationItem("plc_home", "🏠 Home", "Home", "places", "#10b981"),
-                CommunicationItem("plc_hospital", "🏥 Hospital", "Hospital", "places", "#ef4444"),
-                CommunicationItem("plc_outside", "🌳 Outside", "Outside", "places", "#22c55e"),
-                CommunicationItem("plc_bedroom", "🛏️ Bedroom", "Bedroom", "places", "#6366f1"),
-                CommunicationItem("plc_kitchen", "🍽️ Kitchen", "Kitchen", "places", "#f97316"),
-                CommunicationItem("plc_bathroom", "🚿 Bathroom", "Bathroom", "places", "#06b6d4"),
+                CommunicationItem("plc_home", "Home", "Home", "places", "🏠", "My residence", "#10b981"),
+                CommunicationItem("plc_hospital", "Hospital", "Hospital", "places", "🏥", "Medical clinic", "#ef4444"),
+                CommunicationItem("plc_outside", "Outside", "Outside", "places", "🌳", "Garden / Fresh air", "#22c55e"),
+                CommunicationItem("plc_bedroom", "Bedroom", "Bedroom", "places", "🛏️", "Bed room", "#6366f1"),
+                CommunicationItem("plc_kitchen", "Kitchen", "Kitchen", "places", "🍽️", "Dining area", "#f97316"),
+                CommunicationItem("plc_bathroom", "Bathroom", "Bathroom", "places", "🚿", "Restroom", "#06b6d4"),
+                CommunicationItem("plc_livingroom", "Living Room", "Living Room", "places", "🛋️", "Hall / Lounge", "#f59e0b"),
+                CommunicationItem("plc_clinic", "Clinic", "Clinic", "places", "🩺", "Doctor office", "#8b5cf6"),
             ],
         )
 
+        # 6. Actions
         actions = CommunicationCategory(
             category_id="actions",
             name="Actions",
             icon="⚡",
             accent_color="#f59e0b",
             items=[
-                CommunicationItem("act_come", "👋 Come here", "Come here", "actions", "#38bdf8"),
-                CommunicationItem("act_call", "📞 Call someone", "Call someone", "actions", "#22c55e"),
-                CommunicationItem("act_turn_on", "💡 Turn on", "Turn on", "actions", "#eab308"),
-                CommunicationItem("act_turn_off", "🌑 Turn off", "Turn off", "actions", "#64748b"),
-                CommunicationItem("act_stop", "🛑 Stop", "Stop", "actions", "#ef4444"),
-                CommunicationItem("act_look", "👀 Look here", "Look here", "actions", "#8b5cf6"),
+                CommunicationItem("act_come", "Come Here", "Come here", "actions", "👋", "Call nearby", "#38bdf8"),
+                CommunicationItem("act_call", "Call Someone", "Call someone", "actions", "📞", "Phone call", "#22c55e"),
+                CommunicationItem("act_turn_on", "Turn On", "Turn on", "actions", "💡", "Switch on", "#eab308"),
+                CommunicationItem("act_turn_off", "Turn Off", "Turn off", "actions", "🌑", "Switch off", "#64748b"),
+                CommunicationItem("act_stop", "Stop", "Stop", "actions", "🛑", "Cease action", "#ef4444"),
+                CommunicationItem("act_look", "Look Here", "Look here", "actions", "👀", "Direct visual", "#8b5cf6"),
+                CommunicationItem("act_wait", "Wait", "Please wait", "actions", "⏳", "Hold on", "#06b6d4"),
+                CommunicationItem("act_open", "Open", "Please open", "actions", "🔓", "Open door / item", "#10b981"),
             ],
         )
 
@@ -149,10 +164,12 @@ class CommunicationBoardModel:
 
     @property
     def current_message(self) -> str:
-        return " ".join(self._message_tokens).strip()
+        """Current composed sentence string."""
+        return " ".join(t for t in self._message_tokens if t).strip()
 
     @property
     def message_tokens(self) -> List[str]:
+        """List of active phrase tokens."""
         return list(self._message_tokens)
 
     @property
