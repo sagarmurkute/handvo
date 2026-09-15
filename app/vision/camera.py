@@ -15,22 +15,38 @@ class Camera:
         self._cap: Optional[cv2.VideoCapture] = None
 
     def open(self) -> bool:
-        """Open the camera capture device."""
+        """Open the camera capture device with robust multi-index fallback."""
         if self.is_opened():
             return True
 
-        # Use DirectShow backend on Windows for faster initialization and stability
-        backend = cv2.CAP_DSHOW if sys.platform.startswith("win") else cv2.CAP_ANY
-        self._cap = cv2.VideoCapture(self.device_index, backend)
+        # Try specified device_index first, then indices 0..3
+        indices_to_try = [self.device_index] + [i for i in [0, 1, 2, 3] if i != self.device_index]
 
-        if not self._cap.isOpened():
-            self._cap = cv2.VideoCapture(self.device_index)
+        for idx in indices_to_try:
+            # 1. Try DirectShow on Windows
+            if sys.platform.startswith("win"):
+                self._cap = cv2.VideoCapture(idx, cv2.CAP_DSHOW)
+                if self._cap.isOpened():
+                    self.device_index = idx
+                    self._configure_capture()
+                    return True
 
-        if not self._cap.isOpened():
-            self.release()
-            return False
+            # 2. Try Default/MSMF
+            self._cap = cv2.VideoCapture(idx)
+            if self._cap.isOpened():
+                self.device_index = idx
+                self._configure_capture()
+                return True
 
-        return True
+        self.release()
+        return False
+
+    def _configure_capture(self) -> None:
+        """Configure standard frame dimensions and buffer size."""
+        if self._cap is not None:
+            self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            self._cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     def read_frame(self) -> Tuple[bool, Optional[np.ndarray]]:
         """Read a single frame from the active camera, applying mirror flip for natural selfie orientation."""

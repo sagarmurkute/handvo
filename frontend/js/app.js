@@ -131,30 +131,69 @@ class ApplicationController {
     if (this.valPinch) this.valPinch.textContent = data.pinch_distance ? data.pinch_distance.toFixed(3) : '0.000';
     if (this.valHand) this.valHand.textContent = handedness;
 
-    // 5. Draw Skeleton on Canvas if on Vision tab
-    if (this.currentView === 'vision' && data.landmarks && this.canvasCtx) {
-      this._drawSkeleton(data.landmarks);
+    // 5. Draw Skeleton & Video on Canvas if on Vision tab
+    if (this.currentView === 'vision' && this.canvasCtx) {
+      this._drawSkeleton(data.landmarks || [], data.image);
     }
   }
 
-  _drawSkeleton(landmarks) {
+  _drawSkeleton(landmarks, imageSrc) {
     if (!this.canvasCtx || !this.canvas) return;
     const ctx = this.canvasCtx;
     const w = this.canvas.width;
     const h = this.canvas.height;
 
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(0, 0, w, h);
+    if (imageSrc) {
+      if (!this._cachedImg) this._cachedImg = new Image();
+      this._cachedImg.onload = () => {
+        ctx.drawImage(this._cachedImg, 0, 0, w, h);
+        this._renderLandmarksOverlay(ctx, w, h, landmarks);
+      };
+      this._cachedImg.src = imageSrc;
+    } else {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, w, h);
+      this._renderLandmarksOverlay(ctx, w, h, landmarks);
+    }
+  }
 
+  _renderLandmarksOverlay(ctx, w, h, landmarks) {
     if (!landmarks || landmarks.length === 0) return;
 
+    // MediaPipe Hand Connection Pairs
+    const connections = [
+      [0, 1], [1, 2], [2, 3], [3, 4],       // Thumb
+      [0, 5], [5, 6], [6, 7], [7, 8],       // Index
+      [5, 9], [9, 10], [10, 11], [11, 12],  // Middle
+      [9, 13], [13, 14], [14, 15], [15, 16],// Ring
+      [13, 17], [17, 18], [18, 19], [19, 20],// Pinky
+      [0, 17]                               // Palm base
+    ];
+
+    // Draw skeleton bone connection lines
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
+    ctx.lineWidth = 3;
+    connections.forEach(([i, j]) => {
+      if (landmarks[i] && landmarks[j]) {
+        ctx.beginPath();
+        ctx.moveTo(landmarks[i].x * w, landmarks[i].y * h);
+        ctx.lineTo(landmarks[j].x * w, landmarks[j].y * h);
+        ctx.stroke();
+      }
+    });
+
     // Draw landmark joints
-    ctx.fillStyle = '#38bdf8';
-    landmarks.forEach(pt => {
+    landmarks.forEach((pt, idx) => {
       const px = pt.x * w;
       const py = pt.y * h;
       ctx.beginPath();
-      ctx.arc(px, py, 4, 0, Math.PI * 2);
+      if ([4, 8, 12, 16, 20].includes(idx)) {
+        ctx.fillStyle = '#f59e0b';
+        ctx.arc(px, py, 6, 0, Math.PI * 2);
+      } else {
+        ctx.fillStyle = '#38bdf8';
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+      }
       ctx.fill();
     });
   }

@@ -1,6 +1,5 @@
-"""FastAPI Backend Server and WebSocket Vision Streamer for HANDVO."""
-
 import asyncio
+import base64
 from contextlib import asynccontextmanager
 import json
 from pathlib import Path
@@ -252,6 +251,11 @@ async def websocket_vision_endpoint(websocket: WebSocket):
                 rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 hands = await asyncio.to_thread(state.hand_detector.detect, rgb)
 
+                # Generate fast JPEG preview thumbnail for browser canvas
+                small_frame = cv2.resize(frame, (320, 240), interpolation=cv2.INTER_AREA)
+                _, jpg_buf = cv2.imencode('.jpg', small_frame, [cv2.IMWRITE_JPEG_QUALITY, 55])
+                frame_b64 = base64.b64encode(jpg_buf).decode('utf-8')
+
                 primary = hands[0] if len(hands) > 0 else None
                 landmarks_list = []
 
@@ -271,6 +275,7 @@ async def websocket_vision_endpoint(websocket: WebSocket):
                         "pinch_distance": pinch_res.distance,
                         "handedness": primary.handedness,
                         "landmarks": landmarks_list,
+                        "image": f"data:image/jpeg;base64,{frame_b64}",
                     }
                 else:
                     cursor_pos = state.cursor_manager.update(None, 1920, 1080)
@@ -281,6 +286,7 @@ async def websocket_vision_endpoint(websocket: WebSocket):
                         "norm_y": 0.5,
                         "is_pinched": False,
                         "landmarks": [],
+                        "image": f"data:image/jpeg;base64,{frame_b64}",
                     }
 
                 await websocket.send_text(json.dumps(packet))
