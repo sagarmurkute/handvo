@@ -191,7 +191,7 @@ def learn_prediction(req: LearnRequest):
     active = state.repo.get_active_profile()
     state.prediction_engine.learn_selection(
         prev_sentence=req.prev_sentence,
-        selected_token=req.selected_token,
+        selected_phrase=req.selected_token,
         category_id=req.category_id,
         profile_id=active.id or 1,
     )
