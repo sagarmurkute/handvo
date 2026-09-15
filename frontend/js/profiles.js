@@ -35,7 +35,7 @@ class ProfileManager {
 
   async loadProfiles() {
     try {
-      const res = await fetch('/api/profiles');
+      const res = await fetch(window.getApiUrl('/api/profiles'));
       if (res.ok) {
         const profiles = await res.json();
         this.renderProfilesList(profiles);
@@ -72,7 +72,7 @@ class ProfileManager {
 
   async activateProfile(profileId) {
     try {
-      const res = await fetch(`/api/profiles/${profileId}/activate`, { method: 'POST' });
+      const res = await fetch(window.getApiUrl(`/api/profiles/${profileId}/activate`), { method: 'POST' });
       if (res.ok) {
         const profile = await res.json();
         if (this.lblProfileName) this.lblProfileName.textContent = profile.name;
@@ -89,7 +89,7 @@ class ProfileManager {
     if (!name) return;
 
     try {
-      const res = await fetch('/api/profiles', {
+      const res = await fetch(window.getApiUrl('/api/profiles'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim() })
@@ -104,7 +104,7 @@ class ProfileManager {
 
   async duplicateProfile(id, name) {
     try {
-      const res = await fetch(`/api/profiles/${id}/duplicate`, {
+      const res = await fetch(window.getApiUrl(`/api/profiles/${id}/duplicate`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ new_name: `${name} (Copy)` })
@@ -119,7 +119,7 @@ class ProfileManager {
 
   async exportProfile() {
     try {
-      const res = await fetch('/api/profiles/active/export');
+      const res = await fetch(window.getApiUrl('/api/profiles/active/export'));
       if (res.ok) {
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
@@ -141,7 +141,7 @@ class ProfileManager {
     reader.onload = async (evt) => {
       try {
         const jsonContent = evt.target.result;
-        const res = await fetch('/api/profiles/import', {
+        const res = await fetch(window.getApiUrl('/api/profiles/import'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: jsonContent

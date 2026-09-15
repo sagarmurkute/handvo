@@ -42,7 +42,7 @@ class EmergencyController {
 
     let actions = this.defaultActions;
     try {
-      const res = await fetch('/api/emergency/actions');
+      const res = await fetch(window.getApiUrl('/api/emergency/actions'));
       if (res.ok) {
         const data = await res.json();
         if (data.actions && data.actions.length > 0) {

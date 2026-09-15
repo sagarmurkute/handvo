@@ -151,7 +151,7 @@ class SettingsManager {
 
   async loadSettings() {
     try {
-      const res = await fetch('/api/profiles/active');
+      const res = await fetch(window.getApiUrl('/api/profiles/active'));
       if (res.ok) {
         this.currentProfile = await res.json();
         this._populateUI(this.currentProfile);
@@ -165,7 +165,7 @@ class SettingsManager {
   async loadVoices() {
     if (!this.selectVoice) return;
     try {
-      const res = await fetch('/api/speech/voices');
+      const res = await fetch(window.getApiUrl('/api/speech/voices'));
       if (res.ok) {
         const data = await res.json();
         this.selectVoice.innerHTML = '';
@@ -226,7 +226,7 @@ class SettingsManager {
     this.currentProfile.dwell_sound = this.chkDwellSound.checked;
 
     try {
-      await fetch('/api/profiles/active', {
+      await fetch(window.getApiUrl('/api/profiles/active'), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(this.currentProfile)

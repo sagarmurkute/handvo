@@ -69,7 +69,7 @@ class AudioCueEngine {
   async speak(text, interrupt = false) {
     if (!text || !text.trim()) return;
     try {
-      await fetch('/api/speech/speak', {
+      await fetch(window.getApiUrl('/api/speech/speak'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: text.trim(), interrupt: interrupt })

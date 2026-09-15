@@ -20,7 +20,7 @@ class SmartPredictionEngine {
 
     let candidates = [];
     try {
-      const response = await fetch(`/api/predictions?sentence=${encodeURIComponent(currentSentence)}&category=${encodeURIComponent(categoryId)}`);
+      const response = await fetch(window.getApiUrl(`/api/predictions?sentence=${encodeURIComponent(currentSentence)}&category=${encodeURIComponent(categoryId)}`));
       if (response.ok) {
         const data = await response.json();
         candidates = data.predictions || [];
@@ -76,7 +76,7 @@ class SmartPredictionEngine {
 
   async learn(prevSentence, selectedToken, categoryId) {
     try {
-      await fetch('/api/predictions/learn', {
+      await fetch(window.getApiUrl('/api/predictions/learn'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

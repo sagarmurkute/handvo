@@ -2,6 +2,16 @@
  * WebSocket client connecting to the HANDVO Python Vision & Gesture backend.
  */
 
+// Helper to resolve backend API endpoints whether served from HTTP or opened as file://
+window.getApiUrl = function(path) {
+  if (!path.startsWith('/')) path = '/' + path;
+  const isFile = window.location.protocol === 'file:';
+  if (isFile || !window.location.host) {
+    return `http://127.0.0.1:8000${path}`;
+  }
+  return path;
+};
+
 class VisionWebSocketClient {
   constructor() {
     this.ws = null;
@@ -12,17 +22,22 @@ class VisionWebSocketClient {
   }
 
   connect() {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host || '127.0.0.1:8000';
+    const isFile = window.location.protocol === 'file:';
+    const protocol = (window.location.protocol === 'https:') ? 'wss:' : 'ws:';
+    const host = (!isFile && window.location.host) ? window.location.host : '127.0.0.1:8000';
     const wsUrl = `${protocol}//${host}/ws/vision`;
 
     try {
+      if (this.ws) {
+        try { this.ws.close(); } catch(e) {}
+      }
+
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
         this.isConnected = true;
         if (this.onStatusChange) this.onStatusChange(true);
-        console.log("Connected to HANDVO Vision WebSocket Server");
+        console.log("Connected to HANDVO Vision WebSocket Server at:", wsUrl);
       };
 
       this.ws.onmessage = (event) => {
@@ -44,7 +59,6 @@ class VisionWebSocketClient {
 
       this.ws.onerror = (err) => {
         console.warn("WebSocket error:", err);
-        this.ws.close();
       };
     } catch (e) {
       console.warn("WebSocket connection failure:", e);
@@ -56,7 +70,7 @@ class VisionWebSocketClient {
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     this.reconnectTimer = setTimeout(() => {
       this.connect();
-    }, 2000);
+    }, 1500);
   }
 
   sendCommand(command, payload = {}) {
@@ -67,3 +81,4 @@ class VisionWebSocketClient {
 }
 
 window.VisionWS = new VisionWebSocketClient();
+

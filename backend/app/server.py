@@ -205,86 +205,100 @@ def learn_prediction(req: LearnRequest):
 async def websocket_vision_endpoint(websocket: WebSocket):
     await websocket.accept()
 
-    # Automatically start camera on client connection
+    # Automatically start camera on client connection if needed
     if not state.camera.is_opened:
         state.is_camera_running = state.camera.open()
 
-    try:
-        while True:
-            # Check for client commands with a non-blocking timeout
-            try:
-                msg = await asyncio.wait_for(websocket.receive_text(), timeout=0.033)
-                cmd_data = json.loads(msg)
-                cmd = cmd_data.get("command")
-                if cmd == "START_CAMERA" and not state.camera.is_opened:
-                    state.is_camera_running = state.camera.open()
-                elif cmd == "STOP_CAMERA" and state.camera.is_opened:
-                    state.camera.release()
-                    state.is_camera_running = False
-            except asyncio.TimeoutError:
-                pass
+    async def rx_handler():
+        try:
+            while True:
+                msg = await websocket.receive_text()
+                try:
+                    cmd_data = json.loads(msg)
+                    cmd = cmd_data.get("command")
+                    if cmd == "START_CAMERA" and not state.camera.is_opened:
+                        state.is_camera_running = state.camera.open()
+                    elif cmd == "STOP_CAMERA" and state.camera.is_opened:
+                        state.camera.release()
+                        state.is_camera_running = False
+                except Exception as ex:
+                    print("Error handling WS command:", ex)
+        except (WebSocketDisconnect, asyncio.CancelledError):
+            pass
 
-            if not state.is_camera_running or not state.camera.is_opened:
-                packet = {
-                    "camera_active": False,
-                    "tracking_valid": False,
-                    "cursor_x": 0,
-                    "cursor_y": 0,
-                    "is_pinched": False,
-                }
+    async def tx_handler():
+        try:
+            while True:
+                if not state.is_camera_running or not state.camera.is_opened:
+                    packet = {
+                        "camera_active": False,
+                        "tracking_valid": False,
+                        "norm_x": 0.5,
+                        "norm_y": 0.5,
+                        "is_pinched": False,
+                        "landmarks": [],
+                    }
+                    await websocket.send_text(json.dumps(packet))
+                    await asyncio.sleep(0.1)
+                    continue
+
+                # Run blocking camera read in thread
+                success, frame = await asyncio.to_thread(state.camera.read_frame)
+                if not success or frame is None:
+                    await asyncio.sleep(0.02)
+                    continue
+
+                h, w = frame.shape[:2]
+                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                hands = await asyncio.to_thread(state.hand_detector.detect, rgb)
+
+                primary = hands[0] if len(hands) > 0 else None
+                landmarks_list = []
+
+                if primary and primary.is_valid:
+                    cursor_pos = state.cursor_manager.update(primary, 1920, 1080)
+                    pinch_res = state.pinch_detector.detect(primary)
+                    landmarks_list = [{"x": pt.x, "y": pt.y, "z": pt.z} for pt in primary.landmarks]
+
+                    packet = {
+                        "camera_active": True,
+                        "tracking_valid": cursor_pos.is_valid,
+                        "norm_x": float(cursor_pos.pixel_x) / 1920.0,
+                        "norm_y": float(cursor_pos.pixel_y) / 1080.0,
+                        "raw_x": cursor_pos.pixel_x,
+                        "raw_y": cursor_pos.pixel_y,
+                        "is_pinched": pinch_res.is_pinched,
+                        "pinch_distance": pinch_res.distance,
+                        "handedness": primary.handedness,
+                        "landmarks": landmarks_list,
+                    }
+                else:
+                    cursor_pos = state.cursor_manager.update(None, 1920, 1080)
+                    packet = {
+                        "camera_active": True,
+                        "tracking_valid": False,
+                        "norm_x": 0.5,
+                        "norm_y": 0.5,
+                        "is_pinched": False,
+                        "landmarks": [],
+                    }
+
                 await websocket.send_text(json.dumps(packet))
-                await asyncio.sleep(0.1)
-                continue
+                await asyncio.sleep(0.016)
+        except (WebSocketDisconnect, asyncio.CancelledError):
+            pass
+        except Exception as e:
+            print("WebSocket vision send exception:", e)
 
-            success, frame = state.camera.read_frame()
-            if not success or frame is None:
-                await asyncio.sleep(0.033)
-                continue
+    rx_task = asyncio.create_task(rx_handler())
+    tx_task = asyncio.create_task(tx_handler())
 
-            h, w = frame.shape[:2]
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            hands = state.hand_detector.detect(rgb)
-
-            primary = hands[0] if len(hands) > 0 else None
-            landmarks_list = []
-
-            if primary and primary.is_valid:
-                # 1920x1080 normalized mapping space
-                cursor_pos = state.cursor_manager.update(primary, 1920, 1080)
-                pinch_res = state.pinch_detector.detect(primary)
-
-                landmarks_list = [{"x": pt.x, "y": pt.y, "z": pt.z} for pt in primary.landmarks]
-
-                packet = {
-                    "camera_active": True,
-                    "tracking_valid": cursor_pos.is_valid,
-                    "norm_x": float(cursor_pos.pixel_x) / 1920.0,
-                    "norm_y": float(cursor_pos.pixel_y) / 1080.0,
-                    "raw_x": cursor_pos.pixel_x,
-                    "raw_y": cursor_pos.pixel_y,
-                    "is_pinched": pinch_res.is_pinched,
-                    "pinch_distance": pinch_res.distance,
-                    "handedness": primary.handedness,
-                    "landmarks": landmarks_list,
-                }
-            else:
-                cursor_pos = state.cursor_manager.update(None, 1920, 1080)
-                packet = {
-                    "camera_active": True,
-                    "tracking_valid": False,
-                    "norm_x": 0.5,
-                    "norm_y": 0.5,
-                    "is_pinched": False,
-                    "landmarks": [],
-                }
-
-            await websocket.send_text(json.dumps(packet))
-            await asyncio.sleep(0.01)
-
-    except WebSocketDisconnect:
-        pass
-    except Exception as e:
-        print("WebSocket vision exception:", e)
+    done, pending = await asyncio.wait(
+        [rx_task, tx_task],
+        return_when=asyncio.FIRST_COMPLETED,
+    )
+    for task in pending:
+        task.cancel()
 
 
 # -------------------------------------------------------------
