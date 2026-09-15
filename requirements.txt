@@ -1,5 +1,13 @@
+# Core GUI and Graphics
 PySide6>=6.6.0
+
+# Computer Vision & Machine Learning
 opencv-python>=4.8.0
 mediapipe>=0.10.9
 numpy>=1.26.0
+
+# Text-to-Speech Engine
 pyttsx3>=2.90
+
+# Testing & Development
+pytest>=7.4.0

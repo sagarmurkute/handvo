@@ -2,9 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyd
 
 # C extensions
 *.so
+*.dll
 
 # Distribution / packaging
 .Python
@@ -38,15 +40,18 @@ venv.bak/
 *.swp
 *.swo
 *~
+.cursor/
 
 # Operating System files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Testing & Coverage
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
 
 # Local databases and logs
 *.sqlite3
