@@ -1,32 +1,15 @@
-"""Computer vision, camera capture, face detection, eye tracking, blink detection, and gaze estimation module."""
+"""Computer vision and hand detection module for HANDVO."""
 
-from app.vision.blink_detector import (
-    BlinkConfig,
-    BlinkDetector,
-    BlinkResult,
-    BlinkState,
-)
 from app.vision.camera import Camera
-from app.vision.eye_tracker import EyeData, EyeTracker
-from app.vision.face_detector import FaceDetector
-from app.vision.gaze_estimator import (
-    GazeConfig,
-    GazeDirection,
-    GazeEstimator,
-    GazeResult,
-)
+from app.vision.frame_processor import FrameProcessor, VisionFrameResult
+from app.vision.hand_detector import HandDetector
+from app.vision.landmarks import HandLandmarks, LandmarkPoint
 
 __all__ = [
     "Camera",
-    "FaceDetector",
-    "EyeTracker",
-    "EyeData",
-    "BlinkDetector",
-    "BlinkResult",
-    "BlinkConfig",
-    "BlinkState",
-    "GazeEstimator",
-    "GazeResult",
-    "GazeConfig",
-    "GazeDirection",
+    "HandDetector",
+    "HandLandmarks",
+    "LandmarkPoint",
+    "FrameProcessor",
+    "VisionFrameResult",
 ]
