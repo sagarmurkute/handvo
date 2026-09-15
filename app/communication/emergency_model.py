@@ -31,7 +31,8 @@ class EmergencyManager:
         """
         spoken = action.speech_text.strip() or action.label.strip()
         self.last_spoken = spoken
-        self.speech.speak(spoken)
+        self.speech.play_sound("emergency")
+        self.speech.speak(spoken, interrupt=True)
 
         for listener in self._listeners:
             try:

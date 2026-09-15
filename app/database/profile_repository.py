@@ -43,6 +43,7 @@ class ProfileRepository:
             cursor_size=row[25] if len(row) > 25 and row[25] is not None else 14,
             cursor_color=row[26] if len(row) > 26 and row[26] else "#38bdf8",
             reduced_motion=bool(row[27]) if len(row) > 27 and row[27] is not None else False,
+            voice_id=row[28] if len(row) > 28 and row[28] else None,
         )
 
     def _select_columns_sql(self) -> str:
@@ -53,7 +54,8 @@ class ProfileRepository:
                    dwell_time, smoothing_factor, calibration_quality,
                    is_archived, is_active, language, tts_rate, tts_volume,
                    dwell_sound, high_contrast, theme, ui_scale,
-                   cooldown_time, cursor_size, cursor_color, reduced_motion
+                   cooldown_time, cursor_size, cursor_color, reduced_motion,
+                   voice_id
             FROM profiles
         """
 
@@ -140,8 +142,9 @@ class ProfileRepository:
                     dwell_time, smoothing_factor, calibration_quality,
                     is_archived, is_active, language, tts_rate, tts_volume,
                     dwell_sound, high_contrast, theme, ui_scale,
-                    cooldown_time, cursor_size, cursor_color, reduced_motion
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    cooldown_time, cursor_size, cursor_color, reduced_motion,
+                    voice_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
                 (
                     profile.name,
@@ -171,6 +174,7 @@ class ProfileRepository:
                     profile.cursor_size,
                     profile.cursor_color,
                     1 if profile.reduced_motion else 0,
+                    profile.voice_id,
                 ),
             )
             profile.id = cursor.lastrowid
@@ -217,7 +221,8 @@ class ProfileRepository:
                     cooldown_time = ?,
                     cursor_size = ?,
                     cursor_color = ?,
-                    reduced_motion = ?
+                    reduced_motion = ?,
+                    voice_id = ?
                 WHERE id = ?;
                 """,
                 (
@@ -248,6 +253,7 @@ class ProfileRepository:
                     profile.cursor_size,
                     profile.cursor_color,
                     1 if profile.reduced_motion else 0,
+                    profile.voice_id,
                     profile.id,
                 ),
             )
@@ -288,6 +294,7 @@ class ProfileRepository:
             cursor_size=source.cursor_size,
             cursor_color=source.cursor_color,
             reduced_motion=source.reduced_motion,
+            voice_id=source.voice_id,
         )
         new_prof = self.create_profile(cloned)
         new_id = new_prof.id
@@ -418,6 +425,7 @@ class ProfileRepository:
             "cursor_size": profile.cursor_size,
             "cursor_color": profile.cursor_color,
             "reduced_motion": profile.reduced_motion,
+            "voice_id": profile.voice_id,
             "custom_phrases": phrases_data,
             "phrase_frequencies": frequencies_data,
         }
@@ -451,9 +459,10 @@ class ProfileRepository:
             theme=data.get("theme", "dark"),
             ui_scale=data.get("ui_scale", "medium"),
             cooldown_time=float(data.get("cooldown_time", 0.60)),
-            cursor_size=int(data.get("cursor_size", 14)),
+            cursor_size=data.get("cursor_size", 14),
             cursor_color=data.get("cursor_color", "#38bdf8"),
             reduced_motion=bool(data.get("reduced_motion", False)),
+            voice_id=data.get("voice_id"),
             is_active=False,
             is_archived=False,
         )

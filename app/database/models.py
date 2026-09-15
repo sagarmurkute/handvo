@@ -35,6 +35,7 @@ class UserProfile:
     theme: str = "dark"
     ui_scale: str = "medium"
     reduced_motion: bool = False
+    voice_id: Optional[str] = None
 
     @property
     def speech_rate(self) -> int:

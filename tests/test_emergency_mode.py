@@ -50,7 +50,7 @@ class TestEmergencyMode(unittest.TestCase):
 
         spoken = self.manager.trigger_action(action)
         self.assertEqual(spoken, "Alert! Severe allergic reaction!")
-        self.mock_speech.speak.assert_called_once_with("Alert! Severe allergic reaction!")
+        self.mock_speech.speak.assert_called_once_with("Alert! Severe allergic reaction!", interrupt=True)
         self.assertEqual(len(received_actions), 1)
         self.assertEqual(received_actions[0].label, "Severe Emergency")
 

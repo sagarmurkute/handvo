@@ -287,40 +287,54 @@ class AccessibilityDialog(QDialog):
         grid_voice = QGridLayout(card_voice)
         grid_voice.setSpacing(12)
 
+        # Voice Selection
+        grid_voice.addWidget(QLabel("Voice Model:"), 0, 0)
+        self.combo_voice = QComboBox()
+        voices = self.speech_engine.get_available_voices()
+        for v in voices:
+            self.combo_voice.addItem(f"🗣️ {v.name}", v.id)
+
+        if self.profile.voice_id:
+            idx = self.combo_voice.findData(self.profile.voice_id)
+            if idx >= 0:
+                self.combo_voice.setCurrentIndex(idx)
+        self.combo_voice.currentIndexChanged.connect(self._on_voice_changed)
+        grid_voice.addWidget(self.combo_voice, 0, 1, 1, 2)
+
         # Voice Speech Rate (WPM)
-        grid_voice.addWidget(QLabel("Speech Rate (WPM):"), 0, 0)
+        grid_voice.addWidget(QLabel("Speech Rate (WPM):"), 1, 0)
         self.slider_rate = QSlider(Qt.Orientation.Horizontal)
         self.slider_rate.setRange(80, 260)
         self.slider_rate.setValue(self.profile.tts_rate)
         self.lbl_rate_val = QLabel(f"{self.profile.tts_rate} WPM")
         self.lbl_rate_val.setFixedWidth(60)
         self.slider_rate.valueChanged.connect(self._on_rate_changed)
-        grid_voice.addWidget(self.slider_rate, 0, 1)
-        grid_voice.addWidget(self.lbl_rate_val, 0, 2)
+        grid_voice.addWidget(self.slider_rate, 1, 1)
+        grid_voice.addWidget(self.lbl_rate_val, 1, 2)
 
         # Voice Volume
-        grid_voice.addWidget(QLabel("Speech Volume:"), 1, 0)
+        grid_voice.addWidget(QLabel("Speech Volume:"), 2, 0)
         self.slider_vol = QSlider(Qt.Orientation.Horizontal)
         self.slider_vol.setRange(10, 100)
         self.slider_vol.setValue(int(self.profile.tts_volume * 100))
         self.lbl_vol_val = QLabel(f"{int(self.profile.tts_volume * 100)}%")
         self.lbl_vol_val.setFixedWidth(60)
         self.slider_vol.valueChanged.connect(self._on_volume_changed)
-        grid_voice.addWidget(self.slider_vol, 1, 1)
-        grid_voice.addWidget(self.lbl_vol_val, 1, 2)
+        grid_voice.addWidget(self.slider_vol, 2, 1)
+        grid_voice.addWidget(self.lbl_vol_val, 2, 2)
 
         # Selection Sound Feedback Toggle
-        grid_voice.addWidget(QLabel("Audio Feedback:"), 2, 0)
+        grid_voice.addWidget(QLabel("Audio Feedback:"), 3, 0)
         self.chk_sound = QCheckBox("Play Audio Sound on Dwell Selection")
         self.chk_sound.setChecked(self.profile.dwell_sound)
         self.chk_sound.stateChanged.connect(self._on_sound_toggle_changed)
-        grid_voice.addWidget(self.chk_sound, 2, 1, 1, 2)
+        grid_voice.addWidget(self.chk_sound, 3, 1, 1, 2)
 
         # Voice Test Button
         btn_test_speech = QPushButton("🔊 Test Spoken Voice")
         btn_test_speech.setObjectName("btnPrimary")
         btn_test_speech.clicked.connect(self._test_spoken_voice)
-        grid_voice.addWidget(btn_test_speech, 3, 1)
+        grid_voice.addWidget(btn_test_speech, 4, 1)
 
         layout_voice.addWidget(card_voice)
         layout_voice.addStretch()
@@ -437,6 +451,13 @@ class AccessibilityDialog(QDialog):
     def _on_motion_changed(self) -> None:
         self.profile.reduced_motion = self.chk_motion.isChecked()
         self._save_and_emit()
+
+    def _on_voice_changed(self) -> None:
+        voice_id = self.combo_voice.currentData()
+        if voice_id:
+            self.profile.voice_id = voice_id
+            self.speech_engine.set_voice(voice_id)
+            self._save_and_emit()
 
     def _on_rate_changed(self, val: int) -> None:
         self.profile.tts_rate = val

@@ -60,6 +60,7 @@ class Database:
                     theme TEXT DEFAULT 'dark',
                     ui_scale TEXT DEFAULT 'medium',
                     reduced_motion INTEGER DEFAULT 0,
+                    voice_id TEXT DEFAULT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
                 """
@@ -90,6 +91,7 @@ class Database:
                 ("cursor_size", "INTEGER DEFAULT 14"),
                 ("cursor_color", "TEXT DEFAULT '#38bdf8'"),
                 ("reduced_motion", "INTEGER DEFAULT 0"),
+                ("voice_id", "TEXT DEFAULT NULL"),
             ]
             cursor.execute("PRAGMA table_info(profiles);")
             existing_cols = {col[1] for col in cursor.fetchall()}
