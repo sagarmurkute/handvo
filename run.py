@@ -39,8 +39,8 @@ def main():
     # Launch browser automatically
     threading.Thread(target=open_browser, args=(port,), daemon=True).start()
 
-    # Run FastAPI server with Uvicorn
-    uvicorn.run("backend.app.server:app", host="127.0.0.1", port=port, log_level="info")
+    # Run FastAPI server with Uvicorn (with auto-reload enabled for development)
+    uvicorn.run("backend.app.server:app", host="127.0.0.1", port=port, log_level="info", reload=True)
 
 
 if __name__ == "__main__":

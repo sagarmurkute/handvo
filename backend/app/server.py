@@ -48,9 +48,16 @@ state = ServerState()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    print("[HANDVO Server] Starting up HANDVO Backend Engine...")
+    state.is_camera_running = state.camera.open()
+    if state.is_camera_running:
+        print(f"[HANDVO Server] Camera successfully opened on device index {state.camera.device_index}")
+    else:
+        print("[HANDVO Server] Notice: Camera will initialize on first WebSocket connection")
     yield
     # Shutdown
-    if state.camera.is_opened:
+    print("[HANDVO Server] Shutting down backend resources...")
+    if state.camera.is_opened():
         state.camera.release()
     state.hand_detector.close()
     state.speech_engine.shutdown()
