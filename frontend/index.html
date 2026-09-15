@@ -75,9 +75,47 @@ button{cursor:none!important}
 .icon-btn.active{background:var(--accent);color:white;border-color:var(--accent)}
 
 /* CONTENT */
-.content-area{flex:1;display:flex;overflow:hidden}
-.center{flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:20px}
-.right{width:var(--right-w);background:var(--surface);border-left:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex-shrink:0}
+.content-area{flex:1;display:flex;overflow:hidden;position:relative}
+.center{flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:20px;min-width:0;transition:all .32s cubic-bezier(.2,.8,.2,1)}
+.right{width:var(--right-w);background:var(--surface);border-left:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex-shrink:0;transition:margin-right .32s cubic-bezier(.2,.8,.2,1), opacity .25s ease, transform .32s cubic-bezier(.2,.8,.2,1);position:relative;z-index:10}
+.content-area.panel-collapsed .right{margin-right:calc(-1 * var(--right-w));opacity:0;pointer-events:none;transform:translateX(20px)}
+
+.panel-pull-tab{
+  position:absolute;
+  top:50%;
+  right:var(--right-w);
+  transform:translateY(-50%) translateX(50%);
+  width:26px;
+  height:54px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--text-2);
+  z-index:25;
+  box-shadow:var(--shadow);
+  transition:right .32s cubic-bezier(.2,.8,.2,1), transform .32s cubic-bezier(.2,.8,.2,1), background .18s, color .18s, border-color .18s;
+  cursor:none!important;
+}
+.panel-pull-tab:hover{
+  background:var(--accent-soft);
+  color:var(--text);
+  border-color:var(--border-strong);
+}
+.content-area.panel-collapsed .panel-pull-tab{
+  right:0;
+  transform:translateY(-50%) translateX(0);
+  border-radius:10px 0 0 10px;
+  border-right:none;
+}
+.panel-pull-tab svg{
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+}
+.content-area.panel-collapsed .panel-pull-tab svg{
+  transform:rotate(180deg);
+}
 
 /* COMPOSER */
 .composer{background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-24);padding:22px 24px;box-shadow:var(--shadow);display:flex;gap:20px}
@@ -252,6 +290,7 @@ button{cursor:none!important}
         <div class="pill" id="headerGesturePill" style="display:none">Gesture: <b id="headerGestureVal">None</b></div>
       </div>
       <div class="header-right">
+        <button class="icon-btn active" id="panelToggle" title="Toggle Inspector Panel (Ctrl+B)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="1.6"/><path d="M15 3v18" stroke="currentColor" stroke-width="1.6"/></svg></button>
         <button class="icon-btn active" id="camToggle" title="Camera"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg></button>
         <button class="icon-btn active" id="cursorToggle" title="Cursor"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></button>
         <button class="h-btn" id="calibBtn">Calibrate</button>
@@ -260,6 +299,11 @@ button{cursor:none!important}
     </header>
 
     <div class="content-area" id="contentArea">
+      <button class="panel-pull-tab" id="panelPullTab" title="Toggle Inspector Panel (Ctrl+B)" aria-label="Toggle Inspector Panel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
       <!-- COMM -->
       <section class="center" id="page-comm">
         <div class="composer">
@@ -761,7 +805,7 @@ function switchPage(name){
   });
 
   const contentArea = document.getElementById('contentArea');
-  if (contentArea) contentArea.style.display = (name === 'comm' ? 'flex' : 'none');
+  if (contentArea) contentArea.style.display = 'flex';
   if (pages[name]) { pages[name].style.display = 'flex'; pages[name].classList.add('active'); }
 
   document.querySelectorAll('.nav-item').forEach(n => {
@@ -769,9 +813,16 @@ function switchPage(name){
   });
 
   const rightPanel = document.getElementById('rightPanel');
-  if (rightPanel) rightPanel.style.display = (name === 'comm' ? 'flex' : 'none');
+  const pullTab = document.getElementById('panelPullTab');
+  const pToggle = document.getElementById('panelToggle');
+  const isComm = (name === 'comm');
+
+  if (rightPanel) rightPanel.style.display = isComm ? 'flex' : 'none';
+  if (pullTab) pullTab.style.display = isComm ? 'flex' : 'none';
+  if (pToggle) pToggle.style.display = isComm ? 'grid' : 'none';
+
   const headerCenter = document.getElementById('headerCenter');
-  if (headerCenter) headerCenter.style.display = (name === 'comm' ? 'flex' : 'none');
+  if (headerCenter) headerCenter.style.display = isComm ? 'flex' : 'none';
 
   const titles = {
     comm: ['Communication Board', 'Dwell to select • Pinch to confirm'],
@@ -803,6 +854,39 @@ document.querySelectorAll('.nav-item').forEach(btn=>{
     }
     switchPage(pg);
   });
+});
+
+// Sidebar Slide Toggle
+let isPanelOpen = true;
+const contentAreaEl = document.getElementById('contentArea');
+const panelToggleEl = document.getElementById('panelToggle');
+const panelPullTabEl = document.getElementById('panelPullTab');
+
+function toggleRightPanel(forceState){
+  if (typeof forceState === 'boolean') {
+    isPanelOpen = forceState;
+  } else {
+    isPanelOpen = !isPanelOpen;
+  }
+  if (contentAreaEl) {
+    contentAreaEl.classList.toggle('panel-collapsed', !isPanelOpen);
+  }
+  if (panelToggleEl) {
+    panelToggleEl.classList.toggle('active', isPanelOpen);
+  }
+  window.AudioEngine?.playSound('pop');
+}
+
+panelToggleEl?.addEventListener('click', () => toggleRightPanel());
+panelPullTabEl?.addEventListener('click', () => toggleRightPanel());
+panelPullTabEl?.addEventListener('mouseenter', () => vCursor?.classList.add('hovering'));
+panelPullTabEl?.addEventListener('mouseleave', () => { vCursor?.classList.remove('hovering'); cancelDwell(); });
+
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey && e.key.toLowerCase() === 'b') || (e.key === '\\' && !e.target.matches('input, textarea, select'))) {
+    e.preventDefault();
+    toggleRightPanel();
+  }
 });
 
 document.getElementById('calibBtn')?.addEventListener('click',()=>switchPage('calib'));
