@@ -1,12 +1,12 @@
-"""Repository pattern for managing user profile and calibration persistence."""
+"""Repository pattern for managing user profile, calibration, and learned phrase frequencies."""
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from app.database.database import Database
 from app.database.models import UserProfile
 
 
 class ProfileRepository:
-    """Handles CRUD operations for user profiles and calibration data."""
+    """Handles CRUD operations for user profiles, calibration data, and prediction learning."""
 
     def __init__(self, database: Optional[Database] = None) -> None:
         self.db = database or Database()
@@ -125,3 +125,40 @@ class ProfileRepository:
                 )
                 profile.id = cursor.lastrowid
             return True
+
+    def record_phrase_usage(self, prev_token: str, next_token: str, category_id: str = "common") -> None:
+        """Increment learned selection frequency for (prev_token -> next_token) pair in SQLite."""
+        p_clean = prev_token.strip().lower()
+        n_clean = next_token.strip()
+        if not n_clean:
+            return
+
+        with self.db.session() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO phrase_frequencies (prev_token, next_token, category_id, frequency, last_used)
+                VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)
+                ON CONFLICT(prev_token, next_token) DO UPDATE SET
+                    frequency = frequency + 1,
+                    last_used = CURRENT_TIMESTAMP;
+                """,
+                (p_clean, n_clean, category_id),
+            )
+
+    def get_top_predictions(self, prev_token: str, limit: int = 5) -> List[Tuple[str, int]]:
+        """Retrieve most frequent next tokens for given prefix context."""
+        p_clean = prev_token.strip().lower()
+        with self.db.session() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT next_token, frequency
+                FROM phrase_frequencies
+                WHERE prev_token = ?
+                ORDER BY frequency DESC, last_used DESC
+                LIMIT ?;
+                """,
+                (p_clean, limit),
+            )
+            return cursor.fetchall()

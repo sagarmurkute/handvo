@@ -1,4 +1,4 @@
-"""SQLite local persistence engine for HANDVO profiles, calibration, and settings."""
+"""SQLite local persistence engine for HANDVO profiles, calibration, phrases, and learned frequencies."""
 
 from contextlib import contextmanager
 from pathlib import Path
@@ -84,6 +84,21 @@ class Database:
                     text TEXT NOT NULL,
                     accent_color TEXT DEFAULT '#38bdf8',
                     FOREIGN KEY (profile_id) REFERENCES profiles(id)
+                );
+                """
+            )
+
+            # Learned phrase transition frequency table for smart predictions
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS phrase_frequencies (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    prev_token TEXT NOT NULL,
+                    next_token TEXT NOT NULL,
+                    category_id TEXT DEFAULT 'common',
+                    frequency INTEGER DEFAULT 1,
+                    last_used TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(prev_token, next_token)
                 );
                 """
             )
