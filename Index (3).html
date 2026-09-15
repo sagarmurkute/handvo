@@ -45,7 +45,7 @@ button{cursor:none!important}
 .sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:20px 0;z-index:20;flex-shrink:0}
 .logo{width:40px;height:40px;background:var(--accent);color:white;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:14px;letter-spacing:-0.02em;margin-bottom:28px}
 .nav{display:flex;flex-direction:column;gap:8px;flex:1;align-items:center;justify-content:center}
-.nav-item{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--text-2);position:relative;transition:all .2s;border:1px solid transparent;background:transparent}
+.nav-item{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--text-2);position:relative;transition:all .2s;border:1px solid transparent}
 .nav-item:hover{background:var(--accent-soft);color:var(--text)}
 .nav-item.active{background:var(--accent);color:white;box-shadow:0 2px 12px rgba(0,0,0,0.16)}
 .nav-item.active::before{content:'';position:absolute;left:-20px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--accent);border-radius:0 3px 3px 0}
@@ -234,7 +234,7 @@ button{cursor:none!important}
     </nav>
     <div class="sidebar-bottom">
       <div class="status-dot"></div>
-      <div class="avatar" id="sidebarAvatar">SM</div>
+      <div class="avatar">SM</div>
       <div class="offline-badge">● LIVE</div>
     </div>
   </aside>
@@ -246,10 +246,9 @@ button{cursor:none!important}
         <p id="pageSub">Dwell to select • Pinch to confirm</p>
       </div>
       <div class="header-center" id="headerCenter">
-        <div class="pill live" id="headerTrackingPill"><span class="pill-dot"></span><b id="trackingStatus">Hand detected</b> • <span id="headerHandedness">Right hand</span></div>
+        <div class="pill live"><span class="pill-dot"></span><b id="trackingStatus">Hand detected</b> • Left hand</div>
         <div class="pill">FPS <b id="fpsVal">60</b></div>
         <div class="pill">Confidence <b id="confVal">94%</b></div>
-        <div class="pill" id="headerGesturePill" style="display:none">Gesture: <b id="headerGestureVal">None</b></div>
       </div>
       <div class="header-right">
         <button class="icon-btn active" id="camToggle" title="Camera"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg></button>
@@ -267,9 +266,9 @@ button{cursor:none!important}
             <div class="composer-label"><i></i> Sentence Composer • Live transcription</div>
             <div class="sentence" id="sentenceText">I need water please<span class="cursor"></span></div>
             <div class="meta-row">
-              <div class="meta"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block"></span> <b id="wordCount">4 words</b> • <span id="lblLang">English</span></div>
+              <div class="meta"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block"></span> <b id="wordCount">4 words</b> • English</div>
               <div class="meta">Prediction <b id="predConf">87%</b> <span class="conf-bar"><span class="conf-fill" id="confFill" style="width:87%"></span></span></div>
-              <div class="meta">Avg dwell <b id="lblAvgDwell">620ms</b></div>
+              <div class="meta">Avg dwell <b>620ms</b></div>
             </div>
           </div>
           <div class="composer-actions">
@@ -308,20 +307,19 @@ button{cursor:none!important}
         <div class="page-inner">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
             <div><h2 style="font-size:20px;font-weight:700;letter-spacing:-0.02em">Camera & Tracking</h2><p style="font-size:12px;color:var(--text-2);margin-top:4px">21-point hand model • Real-time skeleton overlay</p></div>
-            <div class="pill live" id="camPageStatus"><span class="pill-dot"></span> Tracking active</div>
+            <div class="pill live"><span class="pill-dot"></span> Tracking active</div>
           </div>
           <div class="cam-layout">
             <div class="cam-preview" id="camPreview">
-              <canvas id="liveCameraCanvas" width="640" height="480" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:24px;"></canvas>
-              <div class="cam-placeholder" id="camPlaceholder" style="z-index:1;">
+              <div class="cam-placeholder">
                 <svg width="120" height="120" viewBox="0 0 120 120" fill="none"><rect x="10" y="10" width="100" height="70" rx="12" stroke="#2A2A2A" stroke-width="1.2" stroke-dasharray="6 6"/><circle cx="60" cy="40" r="12" stroke="#2A2A2A" stroke-width="1.2"/><path d="M40 60 Q60 90 80 60" stroke="#2A2A2A" stroke-width="1.2" fill="none"/></svg>
                 <div style="font-size:11px;margin-top:12px;letter-spacing:.08em;text-transform:uppercase">Webcam feed • 1280×720</div>
               </div>
-              <div class="skeleton" id="skeleton" style="z-index:2;"></div>
+              <div class="skeleton" id="skeleton"></div>
             </div>
             <div class="cam-inspector">
               <div class="r-card"><div class="r-head"><span class="r-title">Landmarks</span><span class="r-badge" id="landmarkCount">21 pts</span></div><div id="landmarksList"></div></div>
-              <div class="r-card"><div class="r-head"><span class="r-title">Metrics</span></div><div class="metric"><span class="metric-label">Pinch distance</span><span class="metric-val" id="pinchVal">24mm</span></div><div class="metric"><span class="metric-label">FPS</span><span class="metric-val" id="camFps">60 fps</span></div><div class="metric"><span class="metric-label">Confidence</span><span class="metric-val"><span class="bar"><span class="bar-fill" id="camConfBar" style="width:92%"></span></span><span id="camConfText">92%</span></span></div></div>
+              <div class="r-card"><div class="r-head"><span class="r-title">Metrics</span></div><div class="metric"><span class="metric-label">Pinch distance</span><span class="metric-val" id="pinchVal">24mm</span></div><div class="metric"><span class="metric-label">FPS</span><span class="metric-val" id="camFps">60 fps</span></div><div class="metric"><span class="metric-label">Confidence</span><span class="metric-val"><span class="bar"><span class="bar-fill" id="camConfBar" style="width:92%"></span></span>92%</span></div></div>
             </div>
           </div>
         </div>
@@ -339,10 +337,7 @@ button{cursor:none!important}
       <!-- PROFILES -->
       <section class="page" id="page-profiles">
         <div class="page-inner">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div><h2 style="font-size:20px;font-weight:700">Profiles</h2><p style="font-size:12px;color:var(--text-2);margin-top:4px">Switch active user • Personal dwell & sensitivity</p></div>
-            <button class="h-btn primary" id="btnCreateProfile">+ New Profile</button>
-          </div>
+          <h2 style="font-size:20px;font-weight:700">Profiles</h2><p style="font-size:12px;color:var(--text-2);margin-top:4px">Switch active user • Personal dwell & sensitivity</p>
           <div class="profiles-grid" id="profilesGrid" style="margin-top:20px"></div>
         </div>
       </section>
@@ -354,20 +349,19 @@ button{cursor:none!important}
           <div class="settings-groups" style="margin-top:20px">
             <div class="s-group"><h3>Accessibility</h3>
               <div class="s-row"><div><div class="s-label">Dwell time</div><div class="s-sub">Time to select a card</div></div><div style="display:flex;align-items:center;gap:12px"><input type="range" class="range" min="400" max="1500" value="800" id="dwellRange"><span class="metric-val" id="dwellVal">800ms</span></div></div>
-              <div class="s-row"><div><div class="s-label">Cursor size</div><div class="s-sub">Virtual cursor radius</div></div><input type="range" class="range" min="20" max="60" value="28" id="cursorSizeRange"></div>
-              <div class="s-row"><div><div class="s-label">High contrast</div><div class="s-sub">Increase border & text contrast</div></div><div class="toggle" id="toggleHighContrast" data-toggle></div></div>
-              <div class="s-row"><div><div class="s-label">Sound feedback</div><div class="s-sub">Click on selection</div></div><div class="toggle on" id="toggleSound" data-toggle></div></div>
+              <div class="s-row"><div><div class="s-label">Cursor size</div><div class="s-sub">Virtual cursor radius</div></div><input type="range" class="range" min="20" max="60" value="28"></div>
+              <div class="s-row"><div><div class="s-label">High contrast</div><div class="s-sub">Increase border & text contrast</div></div><div class="toggle" data-toggle></div></div>
+              <div class="s-row"><div><div class="s-label">Sound feedback</div><div class="s-sub">Click on selection</div></div><div class="toggle on" data-toggle></div></div>
             </div>
             <div class="s-group"><h3>Tracking</h3>
-              <div class="s-row"><div><div class="s-label">Dominant hand</div><div class="s-sub">Left / Right</div></div><div style="display:flex;gap:8px"><button class="h-btn" id="btnHandLeft" style="height:32px">Left</button><button class="h-btn primary" id="btnHandRight" style="height:32px">Right</button></div></div>
-              <div class="s-row"><div><div class="s-label">Pinch sensitivity</div><div class="s-sub">Threshold for pinch gesture</div></div><input type="range" class="range" min="0" max="100" value="68" id="pinchSensRange"></div>
-              <div class="s-row"><div><div class="s-label">Smoothing</div><div class="s-sub">Cursor lag vs jitter</div></div><input type="range" class="range" min="0" max="100" value="72" id="smoothingRange"></div>
+              <div class="s-row"><div><div class="s-label">Dominant hand</div><div class="s-sub">Left / Right</div></div><div style="display:flex;gap:8px"><button class="h-btn" style="height:32px">Left</button><button class="h-btn primary" style="height:32px">Right</button></div></div>
+              <div class="s-row"><div><div class="s-label">Pinch sensitivity</div><div class="s-sub">Threshold for pinch gesture</div></div><input type="range" class="range" min="0" max="100" value="68"></div>
+              <div class="s-row"><div><div class="s-label">Smoothing</div><div class="s-sub">Cursor lag vs jitter</div></div><input type="range" class="range" min="0" max="100" value="72"></div>
             </div>
-            <div class="s-group"><h3>Speech & Language</h3>
-              <div class="s-row"><div><div class="s-label">Language</div><div class="s-sub">Active AAC phrase set</div></div><select id="selectLang" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);"><option value="en">English</option><option value="hi">हिंदी (Hindi)</option><option value="mr">मराठी (Marathi)</option></select></div>
-              <div class="s-row"><div><div class="s-label">Voice</div><div class="s-sub">System voice pack</div></div><select id="selectVoice" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);"><option value="default">System Default Voice</option></select></div>
-              <div class="s-row"><div><div class="s-label">Speed</div></div><input type="range" class="range" min="0" max="100" value="55" id="speechSpeedRange"></div>
-              <div class="s-row"><div><div class="s-label">Volume</div></div><input type="range" class="range" min="0" max="100" value="80" id="speechVolRange"></div>
+            <div class="s-group"><h3>Speech</h3>
+              <div class="s-row"><div><div class="s-label">Voice</div><div class="s-sub">System voice pack</div></div><div class="pill">Ava • Natural</div></div>
+              <div class="s-row"><div><div class="s-label">Speed</div></div><input type="range" class="range" min="0" max="100" value="55"></div>
+              <div class="s-row"><div><div class="s-label">Volume</div></div><input type="range" class="range" min="0" max="100" value="80"></div>
             </div>
           </div>
         </div>
@@ -376,17 +370,16 @@ button{cursor:none!important}
       <!-- RIGHT PANEL -->
       <aside class="right" id="rightPanel">
         <div class="r-card">
-          <div class="r-head"><span class="r-title">Tracking</span><span class="r-badge" id="rightTrackingBadge" style="background:var(--success-bg);color:var(--success);border-color:#C7E8D1">● Active</span></div>
-          <div class="metric"><span class="metric-label">Hand detected</span><span class="metric-val" id="rightHandStatus">Yes <span style="width:6px;height:6px;background:var(--success);border-radius:50%"></span></span></div>
+          <div class="r-head"><span class="r-title">Tracking</span><span class="r-badge" style="background:var(--success-bg);color:var(--success);border-color:#C7E8D1">● Active</span></div>
+          <div class="metric"><span class="metric-label">Hand detected</span><span class="metric-val">Yes <span style="width:6px;height:6px;background:var(--success);border-radius:50%"></span></span></div>
           <div class="metric"><span class="metric-label">Confidence</span><span class="metric-val"><span class="bar"><span class="bar-fill" id="rightConfBar" style="width:94%"></span></span><span id="rightConf">94%</span></span></div>
           <div class="metric"><span class="metric-label">Pinch</span><span class="metric-val"><span class="bar"><span class="bar-fill" id="pinchBar" style="width:22%"></span></span><span id="rightPinch">Open</span></span></div>
           <div class="metric"><span class="metric-label">Cursor</span><span class="metric-val" id="cursorPos">412, 284</span></div>
-          <div class="metric"><span class="metric-label">Active Gesture</span><span class="metric-val" id="rightGesture">None</span></div>
           <div class="metric"><span class="metric-label">Dwell timer</span><span class="metric-val" id="dwellTimer">—</span></div>
         </div>
         <div class="r-card">
           <div class="r-head"><span class="r-title">Calibration</span><span class="r-badge">Good</span></div>
-          <div class="metric"><span class="metric-label">Dominant hand</span><span class="metric-val" id="rightDominantHand">Right</span></div>
+          <div class="metric"><span class="metric-label">Dominant hand</span><span class="metric-val">Right</span></div>
           <div class="metric"><span class="metric-label">Neutral</span><span class="metric-val" style="color:var(--success)">Locked ✓</span></div>
           <div class="metric"><span class="metric-label">Reach quality</span><span class="metric-val"><span class="bar"><span class="bar-fill" style="width:88%"></span></span>88%</span></div>
           <div class="metric"><span class="metric-label">Pinch sens.</span><span class="metric-val"><span class="bar"><span class="bar-fill" style="width:68%"></span></span>68%</span></div>
@@ -396,12 +389,12 @@ button{cursor:none!important}
           </div>
         </div>
         <div class="r-card">
-          <div class="r-head"><span class="r-title">Usage today</span><span class="r-badge" id="todayDate">Today</span></div>
+          <div class="r-head"><span class="r-title">Usage today</span><span class="r-badge">12 May</span></div>
           <div class="stat-grid">
             <div class="stat"><div class="stat-n" id="statSel">47</div><div class="stat-l">Selections</div></div>
             <div class="stat"><div class="stat-n" id="statSpoken">12</div><div class="stat-l">Spoken</div></div>
-            <div class="stat"><div class="stat-n" id="statDwellAvg">620ms</div><div class="stat-l">Avg dwell</div></div>
-            <div class="stat"><div class="stat-n" id="statAccuracy">96%</div><div class="stat-l">Accuracy</div></div>
+            <div class="stat"><div class="stat-n">620ms</div><div class="stat-l">Avg dwell</div></div>
+            <div class="stat"><div class="stat-n">96%</div><div class="stat-l">Accuracy</div></div>
           </div>
         </div>
       </aside>
@@ -421,20 +414,14 @@ button{cursor:none!important}
   <div id="vCursor"><div class="vc-pulse"></div><div class="vc-ring"></div><div class="vc-dot"></div><svg class="vc-progress" viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" id="vcProg"></circle></svg></div>
 </div>
 
-<!-- Communication Layer & Modular JavaScript -->
-<script src="js/bridge.js"></script>
-<script src="js/websocket.js"></script>
-<script src="js/tts_audio.js"></script>
-
 <script>
-// Multilingual Vocabulary DB
-const phrasesDB = {
+const phrasesDB={
  Common:[
   {icon:'💧',title:'Water',desc:'"I need water"',sentence:'water'},
   {icon:'🩺',title:'Doctor',desc:'"Call a doctor"',sentence:'doctor'},
-  {icon:'❤️',title:'Pain',desc:'"I am in pain"',sentence:'I am in pain'},
+  {icon:'❤',title:'Pain',desc:'"I am in pain"',sentence:'I am in pain'},
   {icon:'🚻',title:'Bathroom',desc:'"Bathroom please"',sentence:'bathroom'},
-  {icon:'🍽️',title:'Hungry',desc:'"I am hungry"',sentence:'I am hungry'},
+  {icon:'🍽',title:'Hungry',desc:'"I am hungry"',sentence:'I am hungry'},
   {icon:'😴',title:'Tired',desc:'"I need to rest"',sentence:'I need to rest'},
   {icon:'🙏',title:'Thank you',desc:'"Thank you"',sentence:'thank you'},
   {icon:'👋',title:'Hello',desc:'"Hello there"',sentence:'hello'},
@@ -443,7 +430,7 @@ const phrasesDB = {
   {icon:'💧',title:'Water',desc:'"I need water please"',sentence:'I need water please'},
   {icon:'🍞',title:'Food',desc:'"I need food"',sentence:'I need food'},
   {icon:'💊',title:'Medicine',desc:'"My medicine"',sentence:'my medicine please'},
-  {icon:'🌡️',title:'Cold',desc:'"I am cold"',sentence:'I am cold'},
+  {icon:'🌡',title:'Cold',desc:'"I am cold"',sentence:'I am cold'},
   {icon:'🪟',title:'Air',desc:'"Open window"',sentence:'open the window'},
   {icon:'🔌',title:'Charger',desc:'"Need charger"',sentence:'charger please'},
   {icon:'📱',title:'Phone',desc:'"My phone"',sentence:'where is my phone'},
@@ -454,7 +441,7 @@ const phrasesDB = {
   {icon:'😔',title:'Sad',desc:'"I feel sad"',sentence:'I feel sad'},
   {icon:'😰',title:'Anxious',desc:'"I feel anxious"',sentence:'I feel anxious'},
   {icon:'😤',title:'Frustrated',desc:'"I am frustrated"',sentence:'I am frustrated'},
-  {icon:'❤️',title:'Loved',desc:'"I feel loved"',sentence:'I feel loved'},
+  {icon:'❤',title:'Loved',desc:'"I feel loved"',sentence:'I feel loved'},
   {icon:'😌',title:'Calm',desc:'"I feel calm"',sentence:'I feel calm'},
   {icon:'🥱',title:'Bored',desc:'"I am bored"',sentence:'I am bored'},
   {icon:'🤗',title:'Grateful',desc:'"I am grateful"',sentence:'I am grateful'},
@@ -473,56 +460,49 @@ const phrasesDB = {
   {icon:'🏠',title:'Home',desc:'"Go home"',sentence:'I want to go home'},
   {icon:'🏥',title:'Hospital',desc:'"Hospital"',sentence:'take me to hospital'},
   {icon:'🚻',title:'Bathroom',desc:'"Bathroom"',sentence:'bathroom please'},
-  {icon:'🛏️',title:'Bedroom',desc:'"My bedroom"',sentence:'my bedroom'},
+  {icon:'🛏',title:'Bedroom',desc:'"My bedroom"',sentence:'my bedroom'},
   {icon:'🌳',title:'Outside',desc:'"Go outside"',sentence:'I want to go outside'},
   {icon:'🪑',title:'Chair',desc:'"My chair"',sentence:'my chair please'},
   {icon:'🚗',title:'Car',desc:'"The car"',sentence:'the car'},
   {icon:'🏫',title:'Clinic',desc:'"Clinic"',sentence:'to the clinic'},
  ],
  Actions:[
-  {icon:'🗣️',title:'Speak',desc:'"Speak slowly"',sentence:'please speak slowly'},
+  {icon:'🗣',title:'Speak',desc:'"Speak slowly"',sentence:'please speak slowly'},
   {icon:'👀',title:'Look',desc:'"Look here"',sentence:'look here please'},
   {icon:'✋',title:'Stop',desc:'"Please stop"',sentence:'please stop'},
-  {icon:'▶️',title:'Play',desc:'"Play music"',sentence:'play some music'},
+  {icon:'▶',title:'Play',desc:'"Play music"',sentence:'play some music'},
   {icon:'📖',title:'Read',desc:'"Read to me"',sentence:'read to me'},
   {icon:'🎵',title:'Music',desc:'"I want music"',sentence:'I want music'},
   {icon:'📺',title:'TV',desc:'"Turn on TV"',sentence:'turn on the TV'},
   {icon:'💡',title:'Light',desc:'"Light on/off"',sentence:'light please'},
  ]
 };
-
-const chipMap = {
-  'water':['please','cold','thank you','more'],
-  'please':['help','water','bathroom'],
-  'bathroom':['please','urgent','thank you'],
-  'doctor':['please','urgent','pain'],
-  'thank you':['so much','doctor','nurse']
+const chipMap={
+  'Water':['please','cold','thank you','more'],
+  'Please':['help','water','bathroom'],
+  'Bathroom':['please','urgent','thank you'],
+  'Doctor':['please','urgent','pain'],
+  'Thank you':['so much','doctor','nurse']
 };
 
-let sentence = 'I need water please';
-let activeCat = 'Common';
-let dwellMs = 800;
-let dwellTimer = null, dwellStart = null, dwellCard = null, dwellAnim = null;
-let mouseX = 400, mouseY = 300, cursorX = 400, cursorY = 300;
-let selections = 47, spoken = 12;
-let activePage = 'comm';
-let isCameraActive = true;
-let isCursorEnabled = true;
+let sentence='I need water please';
+let activeCat='Common';
+let dwellMs=800;
+let dwellTimer=null, dwellStart=null, dwellCard=null, dwellAnim=null;
+let mouseX=400,mouseY=300, cursorX=400,cursorY=300;
+let selections=47, spoken=12;
+let activePage='comm';
 
-const phraseGrid = document.getElementById('phraseGrid');
-const sentenceText = document.getElementById('sentenceText');
-const chipsEl = document.getElementById('chips');
-const vCursor = document.getElementById('vCursor');
-const vcProg = document.getElementById('vcProg');
-const seg = document.getElementById('seg');
-const segInd = document.getElementById('segInd');
-const liveCanvas = document.getElementById('liveCameraCanvas');
-const liveCtx = liveCanvas ? liveCanvas.getContext('2d') : null;
+const phraseGrid=document.getElementById('phraseGrid');
+const sentenceText=document.getElementById('sentenceText');
+const chipsEl=document.getElementById('chips');
+const vCursor=document.getElementById('vCursor');
+const vcProg=document.getElementById('vcProg');
 
 function renderPhrases(){
-  const items = phrasesDB[activeCat] || phrasesDB.Common;
-  phraseGrid.innerHTML = items.map((p,i)=>`
-    <div class="p-card gaze-target" data-sentence="${p.sentence}" data-idx="${i}">
+  const items=phrasesDB[activeCat]||phrasesDB.Common;
+  phraseGrid.innerHTML=items.map((p,i)=>`
+    <div class="p-card" data-sentence="${p.sentence}" data-idx="${i}">
       <div class="dwell-ring"><svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="none" stroke="var(--border)" stroke-width="2"/><circle cx="14" cy="14" r="11" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="69" stroke-dashoffset="69" class="ring-prog" style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .05s linear"/></svg></div>
       <div class="p-top"><div class="p-icon">${p.icon}</div><div class="p-dots">⋯</div></div>
       <div class="p-title">${p.title}</div>
@@ -533,139 +513,107 @@ function renderPhrases(){
   attachCardListeners();
   updateSegIndicator();
 }
-
 function attachCardListeners(){
   document.querySelectorAll('.p-card').forEach(card=>{
     card.addEventListener('mouseenter',()=>startDwell(card));
     card.addEventListener('mouseleave',()=>cancelDwell());
-    card.addEventListener('click',()=>selectCard(card));
   });
 }
-
 function startDwell(card){
   cancelDwell();
-  dwellCard = card;
+  dwellCard=card;
   card.classList.add('dwell');
   vCursor.classList.add('hovering');
-  dwellStart = performance.now();
-  const ring = card.querySelector('.ring-prog');
+  dwellStart=performance.now();
+  const ring=card.querySelector('.ring-prog');
   function tick(now){
-    const elapsed = now - dwellStart;
-    const prog = Math.min(elapsed / dwellMs, 1);
-    const dtEl = document.getElementById('dwellTimer');
-    if (dtEl) dtEl.textContent = Math.round(elapsed)+'ms';
-    vcProg.style.strokeDashoffset = 157 - 157 * prog;
-    if(ring) ring.style.strokeDashoffset = 69 - 69 * prog;
-    if(prog >= 1){
+    const elapsed=now-dwellStart;
+    const prog=Math.min(elapsed/dwellMs,1);
+    document.getElementById('dwellTimer').textContent=Math.round(elapsed)+'ms';
+    document.getElementById('vcProg').style.strokeDashoffset=157 - 157*prog;
+    if(ring) ring.style.strokeDashoffset=69 - 69*prog;
+    if(prog>=1){
       selectCard(card);
       cancelDwell();
     }else{
-      dwellAnim = requestAnimationFrame(tick);
+      dwellAnim=requestAnimationFrame(tick);
     }
   }
-  dwellAnim = requestAnimationFrame(tick);
+  dwellAnim=requestAnimationFrame(tick);
 }
-
 function cancelDwell(){
   if(dwellAnim) cancelAnimationFrame(dwellAnim);
-  dwellAnim = null;
+  dwellAnim=null;
   if(dwellCard){
     dwellCard.classList.remove('dwell');
-    const ring = dwellCard.querySelector('.ring-prog');
-    if(ring) ring.style.strokeDashoffset = 69;
+    const ring=dwellCard.querySelector('.ring-prog');
+    if(ring) ring.style.strokeDashoffset=69;
   }
-  dwellCard = null;
+  dwellCard=null;
   vCursor.classList.remove('hovering');
-  vcProg.style.strokeDashoffset = 157;
-  const dtEl = document.getElementById('dwellTimer');
-  if (dtEl) dtEl.textContent = '—';
+  document.getElementById('vcProg').style.strokeDashoffset=157;
+  document.getElementById('dwellTimer').textContent='—';
 }
-
 function selectCard(card){
-  const sent = card.dataset.sentence;
+  const sent=card.dataset.sentence;
   addToSentence(sent);
   card.classList.add('selected');
   card.animate([{transform:'scale(1)'},{transform:'scale(0.97)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
-  selections++;
-  const stEl = document.getElementById('statSel');
-  if (stEl) stEl.textContent = selections;
-  window.AudioEngine?.playSound('dwell');
+  selections++; document.getElementById('statSel').textContent=selections;
   setTimeout(()=>card.classList.remove('selected'),700);
   if(navigator.vibrate) navigator.vibrate(20);
 }
-
 function addToSentence(word){
-  if(sentence === 'I need water please' && selections < 50) sentence = '';
-  if(!sentence) sentence = word;
+  if(sentence==='I need water please' && selections<50) sentence='';
+  if(!sentence) sentence=word;
   else if(sentence.toLowerCase().endsWith(word.toLowerCase())){}
-  else sentence = sentence + ' ' + word;
+  else sentence= sentence + ' ' + word;
   updateSentence();
   updateChips(word);
 }
-
 function updateSentence(){
-  const words = sentence.trim().split(/\s+/).filter(Boolean);
-  const wcEl = document.getElementById('wordCount');
-  if (wcEl) wcEl.textContent = words.length + ' words';
-  sentenceText.innerHTML = (sentence || '<span style="color:var(--text-3)">Start building a sentence…</span>') + '<span class="cursor"></span>';
-  const conf = 72 + Math.floor(Math.random()*22);
-  const pcEl = document.getElementById('predConf');
-  if (pcEl) pcEl.textContent = conf + '%';
-  const cfEl = document.getElementById('confFill');
-  if (cfEl) cfEl.style.width = conf + '%';
+  const words=sentence.trim().split(/\s+/).filter(Boolean);
+  document.getElementById('wordCount').textContent=words.length+' words';
+  document.getElementById('sentenceText').innerHTML=(sentence||'<span style="color:var(--text-3)">Start building a sentence…</span>')+'<span class="cursor"></span>';
+  const conf= 72 + Math.floor(Math.random()*22);
+  document.getElementById('predConf').textContent=conf+'%';
+  document.getElementById('confFill').style.width=conf+'%';
 }
-
-async function updateChips(trigger){
-  const lower = trigger.toLowerCase();
-  let suggestions = chipMap[lower] || ['please','thank you','help','more','now'];
-
-  // Query smart prediction backend
-  if (window.HANDVOBridge) {
-    try {
-      const preds = await window.HANDVOBridge.getPredictions(sentence, activeCat.toLowerCase());
-      if (preds && preds.length > 0) {
-        suggestions = preds.map(p => p.text || p.label);
-      }
-    } catch(e) {}
-  }
-
-  chipsEl.innerHTML = suggestions.slice(0,5).map((c,i)=>`<button class="chip ${i===0?'selected':''} gaze-target">${i===0?'<span class="spark">✦</span> ':''}${c}</button>`).join('');
+function updateChips(trigger){
+  const suggestions=chipMap[trigger]||['please','thank you','help','more','now'];
+  chipsEl.innerHTML=suggestions.slice(0,5).map((c,i)=>`<button class="chip ${i===0?'selected':''}">${c}</button>`).join('');
   chipsEl.querySelectorAll('.chip').forEach(ch=>{
     ch.addEventListener('mouseenter',()=>startChipDwell(ch));
     ch.addEventListener('mouseleave',()=>cancelDwell());
-    ch.addEventListener('click',()=>addToSentence(ch.textContent.replace('✦','').trim()));
+    ch.addEventListener('click',()=>addToSentence(ch.textContent.trim()));
   });
 }
-
 function startChipDwell(ch){
   vCursor.classList.add('hovering');
-  let start = performance.now();
+  let start=performance.now();
   function tick(now){
-    const p = Math.min((now - start) / 500, 1);
-    vcProg.style.strokeDashoffset = 157 - 157 * p;
-    if(p >= 1){
-      addToSentence(ch.textContent.replace('✦','').trim());
-      cancelDwell();
-    } else {
-      dwellAnim = requestAnimationFrame(tick);
-    }
+    const p=Math.min((now-start)/500,1);
+    document.getElementById('vcProg').style.strokeDashoffset=157-157*p;
+    if(p>=1){ addToSentence(ch.textContent.trim()); cancelDwell(); }
+    else dwellAnim=requestAnimationFrame(tick);
   }
-  dwellAnim = requestAnimationFrame(tick);
+  dwellAnim=requestAnimationFrame(tick);
 }
 
-// Segmented category control
+// Segmented control
+const seg=document.getElementById('seg');
+const segInd=document.getElementById('segInd');
 function updateSegIndicator(){
-  const active = seg?.querySelector('.seg-btn.active');
-  if(!active || !segInd) return;
-  segInd.style.width = active.offsetWidth + 'px';
-  segInd.style.transform = `translateX(${active.offsetLeft - 4}px)`;
+  const active=seg.querySelector('.seg-btn.active');
+  if(!active) return;
+  segInd.style.width=active.offsetWidth+'px';
+  segInd.style.transform=`translateX(${active.offsetLeft-4}px)`;
 }
-
-seg?.querySelectorAll('.seg-btn').forEach(btn=>{
+seg.querySelectorAll('.seg-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     seg.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    activeCat = btn.dataset.cat;
+    activeCat=btn.dataset.cat;
     updateSegIndicator();
     renderPhrases();
   });
@@ -673,155 +621,94 @@ seg?.querySelectorAll('.seg-btn').forEach(btn=>{
   btn.addEventListener('mouseleave',()=>{ vCursor.classList.remove('hovering'); cancelDwell(); });
 });
 
-// Virtual cursor loop
-document.addEventListener('mousemove', e=>{
-  mouseX = e.clientX; mouseY = e.clientY;
-  const cpEl = document.getElementById('cursorPos');
-  if (cpEl) cpEl.textContent = Math.round(mouseX) + ', ' + Math.round(mouseY);
-});
-
-(function cursorLoop(){
-  cursorX += (mouseX - cursorX) * 0.28;
-  cursorY += (mouseY - cursorY) * 0.28;
-  if (isCursorEnabled) {
-    vCursor.style.display = 'block';
-    vCursor.style.transform = `translate3d(${cursorX}px,${cursorY}px,0)`;
-  } else {
-    vCursor.style.display = 'none';
-  }
-  requestAnimationFrame(cursorLoop);
+// Virtual cursor easing
+document.addEventListener('mousemove',e=>{ mouseX=e.clientX; mouseY=e.clientY; document.getElementById('cursorPos').textContent=Math.round(mouseX)+', '+Math.round(mouseY); });
+(function loop(){
+  cursorX += (mouseX - cursorX)*0.22;
+  cursorY += (mouseY - cursorY)*0.22;
+  vCursor.style.transform=`translate3d(${cursorX}px,${cursorY}px,0)`;
+  requestAnimationFrame(loop);
 })();
 
-// Header speak & actions
-document.getElementById('btnSpeak')?.addEventListener('click', speak);
-document.getElementById('speakHeaderBtn')?.addEventListener('click', speak);
-
-async function speak(){
-  if (!sentence.trim()) return;
-  const t = document.getElementById('speakingToast');
-  const stText = document.getElementById('speakingText');
-  if (stText) stText.textContent = 'Speaking: ' + sentence;
+// Header actions
+document.getElementById('btnSpeak').addEventListener('click',speak);
+document.getElementById('speakHeaderBtn').addEventListener('click',speak);
+function speak(){
+  const t=document.getElementById('speakingToast');
+  document.getElementById('speakingText').textContent='Speaking: '+sentence;
   t.classList.add('show');
-  spoken++;
-  const spEl = document.getElementById('statSpoken');
-  if (spEl) spEl.textContent = spoken;
-
-  // Speak through bridge
-  if (window.HANDVOBridge) {
-    await window.HANDVOBridge.speakText(sentence, true);
-  }
-  setTimeout(()=>t.classList.remove('show'), 2400);
+  spoken++; document.getElementById('statSpoken').textContent=spoken;
+  setTimeout(()=>t.classList.remove('show'),2400);
 }
+document.getElementById('btnDelete').addEventListener('click',()=>{ const w=sentence.trim().split(/\s+/); w.pop(); sentence=w.join(' '); updateSentence(); });
+document.getElementById('btnSpace').addEventListener('click',()=>{ sentence+=' '; updateSentence(); });
+document.getElementById('btnClear').addEventListener('click',()=>{ sentence=''; updateSentence(); chipsEl.innerHTML='<button class="chip selected"><span class="spark">✦</span> Water</button><button class="chip">Please</button><button class="chip">Bathroom</button><button class="chip">Doctor</button><button class="chip">Thank you</button>'; });
+document.getElementById('dwellRange').addEventListener('input',e=>{ dwellMs=parseInt(e.target.value); document.getElementById('dwellVal').textContent=dwellMs+'ms'; });
+document.querySelectorAll('[data-toggle]').forEach(el=>el.addEventListener('click',()=>el.classList.toggle('on')));
 
-document.getElementById('btnDelete')?.addEventListener('click',()=>{
-  const w = sentence.trim().split(/\s+/);
-  w.pop();
-  sentence = w.join(' ');
-  updateSentence();
-  window.AudioEngine?.playSound('clear');
-});
-
-document.getElementById('btnSpace')?.addEventListener('click',()=>{
-  sentence += ' ';
-  updateSentence();
-});
-
-document.getElementById('btnClear')?.addEventListener('click',()=>{
-  sentence = '';
-  updateSentence();
-  updateChips('water');
-  window.AudioEngine?.playSound('clear');
-});
-
-document.getElementById('dwellRange')?.addEventListener('input', e=>{
-  dwellMs = parseInt(e.target.value);
-  const dv = document.getElementById('dwellVal');
-  if (dv) dv.textContent = dwellMs + 'ms';
-  const stDwell = document.getElementById('statDwellAvg');
-  if (stDwell) stDwell.textContent = dwellMs + 'ms';
-});
-
-document.querySelectorAll('[data-toggle]').forEach(el=>{
-  el.addEventListener('click',()=>el.classList.toggle('on'));
-});
-
-// Page Navigation
-const pages = {
-  comm: document.getElementById('page-comm'),
-  camera: document.getElementById('page-camera'),
-  calib: document.getElementById('page-calib'),
-  profiles: document.getElementById('page-profiles'),
-  settings: document.getElementById('page-settings')
-};
-
+// Navigation
+const pages={comm:document.getElementById('page-comm'),camera:document.getElementById('page-camera'),calib:document.getElementById('page-calib'),profiles:document.getElementById('page-profiles'),settings:document.getElementById('page-settings')};
 function switchPage(name){
-  activePage = name;
-  Object.values(pages).forEach(p=>{
-    if(p){ p.style.display = 'none'; p.classList.remove('active'); }
-  });
-
-  const contentArea = document.getElementById('contentArea');
-  if (contentArea) contentArea.style.display = (name === 'comm' ? 'flex' : 'none');
-  if (pages[name]) { pages[name].style.display = 'flex'; pages[name].classList.add('active'); }
-
-  document.querySelectorAll('.nav-item').forEach(n => {
-    n.classList.toggle('active', n.dataset.page === name || (name === 'emergency' && n.dataset.page === 'emergency'));
-  });
-
-  const rightPanel = document.getElementById('rightPanel');
-  if (rightPanel) rightPanel.style.display = (name === 'comm' ? 'flex' : 'none');
-  const headerCenter = document.getElementById('headerCenter');
-  if (headerCenter) headerCenter.style.display = (name === 'comm' ? 'flex' : 'none');
-
-  const titles = {
-    comm: ['Communication Board', 'Dwell to select • Pinch to confirm'],
-    camera: ['Camera & Tracking', '21-point hand model • Real-time overlay'],
-    calib: ['Calibration Wizard', '5 steps • ~90 seconds'],
-    profiles: ['Profiles', 'Personal dwell & sensitivity'],
-    settings: ['Settings', 'Accessibility & voice configuration'],
-    emergency: ['Emergency Mode', 'Calm focused high-priority actions']
-  };
-
-  const pt = document.getElementById('pageTitle');
-  const ps = document.getElementById('pageSub');
-  if (pt && titles[name]) pt.textContent = titles[name][0];
-  if (ps && titles[name]) ps.textContent = titles[name][1];
-
-  if (name !== 'emergency') {
-    document.getElementById('emergencyPage')?.classList.remove('open');
-  }
+  activePage=name;
+  Object.values(pages).forEach(p=>{ if(p) p.style.display='none'; p.classList.remove('active'); });
+  document.getElementById('contentArea').style.display=name==='comm'?'flex':'none';
+  if(pages[name]){ pages[name].style.display='flex'; pages[name].classList.add('active'); }
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===name || (name==='emergency' && n.dataset.page==='emergency')));
+  document.getElementById('rightPanel').style.display=name==='comm'?'flex':'none';
+  document.getElementById('headerCenter').style.display=name==='comm'?'flex':'none';
+  const titles={comm:['Communication Board','Dwell to select • Pinch to confirm'],camera:['Camera & Tracking','21-point hand model'],calib:['Calibration','5 steps • ~90 seconds'],profiles:['Profiles','Personal settings'],settings:['Settings','Accessibility & tracking'],emergency:['Emergency Mode','Calm focused actions']};
+  document.getElementById('pageTitle').textContent=titles[name][0];
+  document.getElementById('pageSub').textContent=titles[name][1];
+  if(name!=='emergency') document.getElementById('emergencyPage').classList.remove('open');
 }
-
 document.querySelectorAll('.nav-item').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    const pg = btn.dataset.page;
-    if (pg === 'emergency'){
-      document.getElementById('emergencyPage')?.classList.add('open');
-      switchPage('emergency');
-      renderEmergency();
-      return;
-    }
-    switchPage(pg);
+    if(btn.dataset.page==='emergency'){ document.getElementById('emergencyPage').classList.add('open'); switchPage('emergency'); renderEmergency(); return; }
+    switchPage(btn.dataset.page);
   });
 });
+document.getElementById('calibBtn').addEventListener('click',()=>switchPage('calib'));
 
-document.getElementById('calibBtn')?.addEventListener('click',()=>switchPage('calib'));
-
-document.getElementById('camToggle')?.addEventListener('click', ()=>{
-  isCameraActive = !isCameraActive;
-  document.getElementById('camToggle')?.classList.toggle('active', isCameraActive);
-  if (window.VisionWS) {
-    window.VisionWS.sendCommand(isCameraActive ? 'START_CAMERA' : 'STOP_CAMERA');
+// Camera mock
+function initCamera(){
+  const sk=document.getElementById('skeleton');
+  const pts=[];
+  for(let i=0;i<21;i++){ pts.push({x:30+Math.random()*60,y:20+Math.random()*60}); }
+  const connections=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20]];
+  function draw(){
+    sk.innerHTML='';
+    connections.forEach(([a,b])=>{
+      const p1=pts[a], p2=pts[b];
+      const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy), ang=Math.atan2(dy,dx);
+      const line=document.createElement('div'); line.className='skeleton-line';
+      line.style.left=p1.x+'%'; line.style.top=p1.y+'%'; line.style.width=len+'%'; line.style.transform=`rotate(${ang}rad)`;
+      sk.appendChild(line);
+    });
+    pts.forEach((p,i)=>{
+      const d=document.createElement('div'); d.className='skeleton-point'; d.style.left=p.x+'%'; d.style.top=p.y+'%';
+      d.style.background=i===0?'#111110':'white';
+      sk.appendChild(d);
+      p.x += (Math.random()-0.5)*0.6; p.y += (Math.random()-0.5)*0.6;
+    });
+    requestAnimationFrame(draw);
   }
-});
+  draw();
+  // landmarks list
+  const list=document.getElementById('landmarksList');
+  setInterval(()=>{
+    let html=''; for(let i=0;i<6;i++){ const x=(Math.random()*0.8+0.1).toFixed(3), y=(Math.random()*0.8+0.1).toFixed(3), z=(Math.random()*0.2).toFixed(3); html+=`<div class="metric"><span class="metric-label">#${i} ${['Wrist','Thumb','Index','Middle','Ring','Pinky'][i]||'Joint'}</span><span class="metric-val" style="font-family:monospace;font-size:10px">${x}, ${y}</span></div>`; } list.innerHTML=html;
+    document.getElementById('pinchVal').textContent=(18+Math.random()*12).toFixed(1)+'mm';
+    document.getElementById('camFps').textContent=(58+Math.floor(Math.random()*5))+' fps';
+    document.getElementById('fpsVal').textContent=58+Math.floor(Math.random()*5);
+    document.getElementById('confVal').textContent=(90+Math.floor(Math.random()*8))+'%';
+    document.getElementById('rightConf').textContent=(90+Math.floor(Math.random()*8))+'%';
+    document.getElementById('rightConfBar').style.width=(90+Math.random()*8)+'%';
+  },180);
+}
+initCamera();
 
-document.getElementById('cursorToggle')?.addEventListener('click', ()=>{
-  isCursorEnabled = !isCursorEnabled;
-  document.getElementById('cursorToggle')?.classList.toggle('active', isCursorEnabled);
-});
-
-// Calibration Wizard
-let calibStep = 1;
+// Calibration
+let calibStep=3;
 function renderCalib(){
   const steps=[
     {title:'Choose dominant hand',desc:'Select which hand you will use to control the cursor. This affects tracking orientation and gesture thresholds.',img:'✋'},
@@ -830,261 +717,60 @@ function renderCalib(){
     {title:'Pinch calibration',desc:'Practice pinching thumb and index finger. We measure open/close distances.',img:'🤏'},
     {title:'Validation',desc:'Hit the floating targets to validate your calibration. Aim for 80%+ accuracy.',img:'✓'}
   ];
-  const s = steps[calibStep - 1];
-  const card = document.getElementById('calibCard');
-  if (!card) return;
-
-  card.innerHTML = `
+  const s=steps[calibStep-1];
+  document.getElementById('calibCard').innerHTML=`
     <div style="display:flex;gap:24px;align-items:center"><div style="width:72px;height:72px;border-radius:18px;background:var(--accent-soft);display:grid;place-items:center;font-size:32px">${s.img}</div>
     <div><div style="font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--text-3);text-transform:uppercase">Step ${calibStep} of 5</div><div style="font-size:20px;font-weight:700;margin-top:4px">${s.title}</div><div style="font-size:13px;color:var(--text-2);margin-top:6px;line-height:1.5">${s.desc}</div></div></div>
     <div class="target-area" id="targetArea"></div>
     <div style="display:flex;justify-content:space-between;margin-top:20px"><button class="h-btn" onclick="prevCalib()">Back</button><button class="h-btn primary" onclick="nextCalib()">${calibStep===5?'Finish calibration':'Continue'}</button></div>
   `;
-
-  if(calibStep === 5) spawnTargets();
-  document.querySelectorAll('.step-dot-fill').forEach((el,i)=>{
-    el.style.width = i < calibStep-1 ? '100%' : (i === calibStep-1 ? '55%' : '0%');
-  });
+  if(calibStep===5) spawnTargets();
+  document.querySelectorAll('.step-dot-fill').forEach((el,i)=>{ el.style.width= i<calibStep-1?'100%': i===calibStep-1?'55%':'0%'; });
 }
-
-window.nextCalib = ()=>{
-  if(calibStep < 5){ calibStep++; renderCalib(); }
-  else { switchPage('comm'); calibStep = 1; renderCalib(); }
-};
-
-window.prevCalib = ()=>{
-  if(calibStep > 1){ calibStep--; renderCalib(); }
-};
-
+window.nextCalib=()=>{ if(calibStep<5){ calibStep++; renderCalib(); } else { switchPage('comm'); calibStep=1; } };
+window.prevCalib=()=>{ if(calibStep>1){ calibStep--; renderCalib(); } };
 function spawnTargets(){
-  const area = document.getElementById('targetArea');
-  if(!area) return;
-  area.innerHTML = '';
-  for(let i=0; i<5; i++){
-    const t = document.createElement('div');
-    t.className = 'target';
-    t.style.left = (15 + Math.random()*70) + '%';
-    t.style.top = (15 + Math.random()*60) + '%';
-    t.textContent = i + 1;
-    t.addEventListener('mouseenter',()=>{
-      t.classList.add('hit');
-      window.AudioEngine?.playSound('dwell');
-      setTimeout(()=>{
-        t.style.left = (15 + Math.random()*70) + '%';
-        t.style.top = (15 + Math.random()*60) + '%';
-        t.classList.remove('hit');
-      }, 400);
-    });
+  const area=document.getElementById('targetArea'); if(!area) return;
+  for(let i=0;i<5;i++){
+    const t=document.createElement('div'); t.className='target'; t.style.left=(15+Math.random()*70)+'%'; t.style.top=(15+Math.random()*60)+'%'; t.textContent=i+1;
+    t.addEventListener('mouseenter',()=>{ t.classList.add('hit'); setTimeout(()=>{ t.style.left=(15+Math.random()*70)+'%'; t.style.top=(15+Math.random()*60)+'%'; t.classList.remove('hit'); },400); });
     area.appendChild(t);
   }
 }
 renderCalib();
 
 // Profiles
-async function loadProfiles(){
-  let profilesList = [
-    {id: 1, name:'Sagar M.', hand:'Right', dwell_time: 0.8, is_active: true, last:'2h ago'},
-    {id: 2, name:'Aarav K.', hand:'Left', dwell_time: 1.0, is_active: false, last:'Yesterday'},
-    {id: 3, name:'Guest User', hand:'Right', dwell_time: 0.65, is_active: false, last:'3 days ago'}
-  ];
-
-  if (window.HANDVOBridge) {
-    const fetched = await window.HANDVOBridge.getProfiles();
-    if (fetched && fetched.length > 0) {
-      profilesList = fetched;
-    }
-  }
-
-  const pGrid = document.getElementById('profilesGrid');
-  if (!pGrid) return;
-  pGrid.innerHTML = profilesList.map(p=>`
-    <div class="profile-card ${p.is_active?'active':''}" onclick="activateProfileById(${p.id})">
-      <div class="p-avatar">${p.name.split(' ').map(n=>n[0]).join('')}</div>
-      <div style="font-weight:600;font-size:14px">${p.name}</div>
-      <div style="font-size:12px;color:var(--text-2);margin-top:6px;display:flex;flex-direction:column;gap:4px">
-        <span>Hand: ${p.dominant_hand || p.hand || 'Right'}</span>
-        <span>Dwell: ${p.dwell_time ? (p.dwell_time*1000)+'ms' : '800ms'}</span>
-        <span>Theme: ${(p.theme || 'Dark').toUpperCase()}</span>
-      </div>
-      ${p.is_active?'<div style="margin-top:12px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--success)">● ACTIVE</div>':''}
-    </div>
+const profiles=[{name:'Sagar M.',hand:'Right',dwell:'800ms',last:'2h ago',active:true},{name:'Aarav K.',hand:'Left',dwell:'1000ms',last:'Yesterday'},{name:'Guest',hand:'Right',dwell:'650ms',last:'3 days ago'}];
+function renderProfiles(){
+  document.getElementById('profilesGrid').innerHTML=profiles.map(p=>`
+    <div class="profile-card ${p.active?'active':''}"><div class="p-avatar">${p.name.split(' ').map(n=>n[0]).join('')}</div><div style="font-weight:600;font-size:14px">${p.name}</div><div style="font-size:12px;color:var(--text-2);margin-top:6px;display:flex;flex-direction:column;gap:4px"><span>Hand: ${p.hand}</span><span>Dwell: ${p.dwell}</span><span>Last: ${p.last}</span></div>${p.active?'<div style="margin-top:12px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--success)">● ACTIVE</div>':''}</div>
   `).join('');
 }
-loadProfiles();
+renderProfiles();
 
-window.activateProfileById = async (id) => {
-  if (window.HANDVOBridge) {
-    await window.HANDVOBridge.activateProfile(id);
-    loadProfiles();
-  }
-};
-
-document.getElementById('btnCreateProfile')?.addEventListener('click', async ()=>{
-  const name = prompt("Enter Profile Name:", "New User");
-  if (!name) return;
-  if (window.HANDVOBridge) {
-    await fetch(window.HANDVOBridge.getApiUrl('/api/profiles'), {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ name: name.trim() })
-    });
-    loadProfiles();
-  }
-});
-
-// Emergency Mode
-const emItems = [
-  {label:'I NEED HELP', sub:'Immediate assistance', crit:true, speech:'Emergency! I need help immediately!'},
-  {label:'CALL DOCTOR', sub:'Medical support', crit:false, speech:'Please call the doctor right now!'},
-  {label:'I AM IN PAIN', sub:'Pain level high', crit:true, speech:'I am in severe pain, please assist me!'},
-  {label:"I CAN'T BREATHE", sub:'Breathing difficulty', crit:true, speech:'I cannot breathe, urgent assistance required!'},
-  {label:'YES', sub:'Affirmative', crit:false, speech:'Yes'},
-  {label:'NO', sub:'Negative', crit:false, speech:'No'}
-];
-
+// Emergency
+const emItems=[{label:'I NEED HELP',sub:'Immediate assistance',crit:true},{label:'CALL DOCTOR',sub:'Medical support',crit:false},{label:'I AM IN PAIN',sub:'Pain level high',crit:true},{label:"I CAN'T BREATHE",sub:'Breathing difficulty',crit:true},{label:'YES',sub:'Affirmative',crit:false},{label:'NO',sub:'Negative',crit:false}];
 function renderEmergency(){
-  const emGrid = document.getElementById('emGrid');
-  if (!emGrid) return;
-  emGrid.innerHTML = emItems.map((it, idx)=>`
-    <button class="em-btn ${it.crit?'critical':''} gaze-target" data-idx="${idx}">
-      <b>${it.label}</b><span>${it.sub}</span>
-    </button>
+  document.getElementById('emGrid').innerHTML=emItems.map(it=>`
+    <button class="em-btn ${it.crit?'critical':''}"><b>${it.label}</b><span>${it.sub}</span></button>
   `).join('');
-
   document.querySelectorAll('.em-btn').forEach((b,i)=>{
     b.addEventListener('mouseenter',()=>vCursor.classList.add('hovering'));
     b.addEventListener('mouseleave',()=>vCursor.classList.remove('hovering'));
     b.addEventListener('click',()=>{
-      const text = emItems[i].speech || emItems[i].label;
-      const st = document.getElementById('speakingToast');
-      const stt = document.getElementById('speakingText');
-      if (stt) stt.textContent = 'Emergency: ' + emItems[i].label;
-      st?.classList.add('show');
-      window.AudioEngine?.playSound('emergency');
-      if (window.HANDVOBridge) {
-        window.HANDVOBridge.speakText(text, true);
-      }
-      setTimeout(()=>st?.classList.remove('show'), 2600);
+      document.getElementById('speakingText').textContent='Emergency: '+emItems[i].label;
+      document.getElementById('speakingToast').classList.add('show');
+      setTimeout(()=>document.getElementById('speakingToast').classList.remove('show'),2600);
       b.animate([{transform:'scale(1)'},{transform:'scale(0.96)'},{transform:'scale(1)'}],{duration:200});
     });
   });
 }
+document.getElementById('exitEmergency').addEventListener('click',()=>{ document.getElementById('emergencyPage').classList.remove('open'); switchPage('comm'); });
 
-document.getElementById('exitEmergency')?.addEventListener('click',()=>{
-  document.getElementById('emergencyPage')?.classList.remove('open');
-  switchPage('comm');
-});
-
-// Live Camera & WebSocket Hookup
-function setupLiveVision() {
-  const sk = document.getElementById('skeleton');
-  const cachedImg = new Image();
-
-  if (window.VisionWS) {
-    window.VisionWS.onFrameData = (packet) => {
-      // 1. Coordinates from backend
-      if (packet.norm_x !== undefined && packet.norm_y !== undefined) {
-        mouseX = packet.norm_x * window.innerWidth;
-        mouseY = packet.norm_y * window.innerHeight;
-      }
-
-      // 2. Metrics & Status
-      const isValid = !!packet.tracking_valid;
-      const handedness = packet.handedness || 'Right';
-      const ts = document.getElementById('trackingStatus');
-      const hp = document.getElementById('headerTrackingPill');
-      const hh = document.getElementById('headerHandedness');
-      if (ts) ts.textContent = isValid ? 'Hand detected' : 'No hand';
-      if (hh) hh.textContent = handedness + ' hand';
-      if (hp) hp.className = `pill ${isValid ? 'live' : ''}`;
-
-      const rightHand = document.getElementById('rightHandStatus');
-      if (rightHand) rightHand.innerHTML = isValid ? `Yes <span style="width:6px;height:6px;background:var(--success);border-radius:50%"></span>` : `No <span style="width:6px;height:6px;background:var(--text-3);border-radius:50%"></span>`;
-
-      const rightPinch = document.getElementById('rightPinch');
-      const pinchBar = document.getElementById('pinchBar');
-      if (rightPinch) rightPinch.textContent = packet.is_pinched ? 'Pinched' : 'Open';
-      if (pinchBar && packet.pinch_distance) pinchBar.style.width = Math.min(100, Math.round(packet.pinch_distance * 100)) + '%';
-
-      const rGesture = document.getElementById('rightGesture');
-      if (rGesture) rGesture.textContent = (packet.gesture || 'None').toUpperCase();
-
-      const confVal = document.getElementById('confVal');
-      const rightConf = document.getElementById('rightConf');
-      const rightConfBar = document.getElementById('rightConfBar');
-      const camConfBar = document.getElementById('camConfBar');
-      const camConfText = document.getElementById('camConfText');
-      const pinchVal = document.getElementById('pinchVal');
-
-      const confPct = isValid ? 94 : 0;
-      if (confVal) confVal.textContent = confPct + '%';
-      if (rightConf) rightConf.textContent = confPct + '%';
-      if (rightConfBar) rightConfBar.style.width = confPct + '%';
-      if (camConfBar) camConfBar.style.width = confPct + '%';
-      if (camConfText) camConfText.textContent = confPct + '%';
-      if (pinchVal && packet.pinch_distance) pinchVal.textContent = (packet.pinch_distance * 100).toFixed(1) + 'mm';
-
-      // 3. Draw live canvas preview on Camera Page
-      if (packet.image && liveCtx && liveCanvas) {
-        cachedImg.onload = () => {
-          liveCtx.drawImage(cachedImg, 0, 0, liveCanvas.width, liveCanvas.height);
-        };
-        cachedImg.src = packet.image;
-        const cp = document.getElementById('camPlaceholder');
-        if (cp) cp.style.display = 'none';
-      }
-
-      // 4. Render MediaPipe Skeleton
-      if (sk && packet.landmarks && packet.landmarks.length >= 21) {
-        sk.innerHTML = '';
-        const pts = packet.landmarks.map(p => ({ x: p.x * 100, y: p.y * 100 }));
-        const connections = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20]];
-
-        connections.forEach(([a, b]) => {
-          const p1 = pts[a], p2 = pts[b];
-          if (!p1 || !p2) return;
-          const dx = p2.x - p1.x, dy = p2.y - p1.y, len = Math.hypot(dx, dy), ang = Math.atan2(dy, dx);
-          const line = document.createElement('div');
-          line.className = 'skeleton-line';
-          line.style.left = p1.x + '%';
-          line.style.top = p1.y + '%';
-          line.style.width = len + '%';
-          line.style.transform = `rotate(${ang}rad)`;
-          sk.appendChild(line);
-        });
-
-        pts.forEach((p, i) => {
-          const d = document.createElement('div');
-          d.className = 'skeleton-point';
-          d.style.left = p.x + '%';
-          d.style.top = p.y + '%';
-          d.style.background = (i === 0 ? '#111110' : ([4,8,12,16,20].includes(i) ? '#1A7A4C' : 'white'));
-          sk.appendChild(d);
-        });
-
-        // Update landmark inspect list
-        const list = document.getElementById('landmarksList');
-        if (list) {
-          const names = ['Wrist','Thumb Tip','Index Tip','Middle Tip','Ring Tip','Pinky Tip'];
-          const indices = [0, 4, 8, 12, 16, 20];
-          list.innerHTML = indices.map((idx, n) => {
-            const pt = packet.landmarks[idx];
-            return `<div class="metric"><span class="metric-label">#${idx} ${names[n]}</span><span class="metric-val" style="font-family:monospace;font-size:10px">${pt.x.toFixed(3)}, ${pt.y.toFixed(3)}</span></div>`;
-          }).join('');
-        }
-      }
-    };
-
-    window.VisionWS.connect();
-  }
-}
-
-// Initial Boot
+// Init
 renderPhrases();
-updateSentence();
 updateSegIndicator();
-setupLiveVision();
-window.addEventListener('resize', updateSegIndicator);
+window.addEventListener('resize',updateSegIndicator);
 </script>
 </body>
 </html>
