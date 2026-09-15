@@ -1,4 +1,4 @@
-"""Database data models for user profiles and settings."""
+"""Database data models for user profiles and calibration settings."""
 
 from dataclasses import dataclass
 from typing import Optional
@@ -6,9 +6,19 @@ from typing import Optional
 
 @dataclass
 class UserProfile:
-    """User preferences profile."""
+    """User preferences and calibration profile."""
     id: Optional[int] = None
     name: str = "Default User"
-    dwell_time: float = 0.80
+    dominant_hand: str = "Right"
+    neutral_x: float = 0.50
+    neutral_y: float = 0.50
+    range_min_x: float = 0.20
+    range_max_x: float = 0.80
+    range_min_y: float = 0.20
+    range_max_y: float = 0.80
+    open_hand_span: float = 0.25
     pinch_threshold: float = 0.05
-    smoothing_factor: float = 1.5
+    pinch_release_threshold: float = 0.08
+    dwell_time: float = 0.80
+    smoothing_factor: float = 1.50
+    calibration_quality: str = "GOOD"

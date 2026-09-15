@@ -1,1 +1,1 @@
-"""Test suite for EYEVO."""
+"""Test suite for HANDVO."""

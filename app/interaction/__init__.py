@@ -1,4 +1,4 @@
-"""Gaze interaction package for EYEVO."""
+"""Hand gesture interaction package for HANDVO."""
 
 from app.interaction.dwell_selector import (
     DwellResult,
@@ -9,9 +9,9 @@ from app.interaction.dwell_selector import (
 )
 
 __all__ = [
-    "DwellTarget",
-    "DwellState",
-    "DwellSelectorConfig",
-    "DwellResult",
     "DwellSelector",
+    "DwellSelectorConfig",
+    "DwellTarget",
+    "DwellResult",
+    "DwellState",
 ]

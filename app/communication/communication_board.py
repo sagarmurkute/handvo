@@ -1,4 +1,4 @@
-"""Communication Board data models and pure state management for EYEVO."""
+"""Communication Board data models and pure state management for HANDVO."""
 
 from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional
@@ -9,8 +9,8 @@ class CommunicationItem:
     """A word, phrase, or action item on the communication board."""
 
     item_id: str
-    label: str  # Display label
-    text: str  # Inserted phrase / sentence text
+    label: str
+    text: str
     category_id: str
     accent_color: str = "#38bdf8"
     enabled: bool = True
@@ -29,7 +29,7 @@ class CommunicationCategory:
 
 class CommunicationBoardModel:
     """
-    Pure state management for the EYEVO Communication Board.
+    Pure state management for the HANDVO Communication Board.
     Maintains composed message words, active category, and fires change notifications.
     """
 
@@ -45,7 +45,6 @@ class CommunicationBoardModel:
 
     def _init_default_content(self) -> None:
         """Populate initial categories and accessible communication items."""
-        # 1. Common
         common = CommunicationCategory(
             category_id="common",
             name="Common",
@@ -63,7 +62,6 @@ class CommunicationBoardModel:
             ],
         )
 
-        # 2. Needs
         needs = CommunicationCategory(
             category_id="needs",
             name="Needs",
@@ -79,7 +77,6 @@ class CommunicationBoardModel:
             ],
         )
 
-        # 3. Feelings
         feelings = CommunicationCategory(
             category_id="feelings",
             name="Feelings",
@@ -96,7 +93,6 @@ class CommunicationBoardModel:
             ],
         )
 
-        # 4. People
         people = CommunicationCategory(
             category_id="people",
             name="People",
@@ -112,7 +108,6 @@ class CommunicationBoardModel:
             ],
         )
 
-        # 5. Places
         places = CommunicationCategory(
             category_id="places",
             name="Places",
@@ -128,7 +123,6 @@ class CommunicationBoardModel:
             ],
         )
 
-        # 6. Actions
         actions = CommunicationCategory(
             category_id="actions",
             name="Actions",
@@ -153,38 +147,29 @@ class CommunicationBoardModel:
             "actions": actions,
         }
 
-    # State Queries
     @property
     def current_message(self) -> str:
-        """Current composed message text string."""
         return " ".join(self._message_tokens).strip()
 
     @property
     def message_tokens(self) -> List[str]:
-        """List of individual token phrases in composition."""
         return list(self._message_tokens)
 
     @property
     def active_category_id(self) -> str:
-        """Currently active category identifier."""
         return self._active_category_id
 
     def get_categories(self) -> List[CommunicationCategory]:
-        """List of all available categories."""
         return list(self._categories.values())
 
     def get_category(self, category_id: str) -> Optional[CommunicationCategory]:
-        """Retrieve a category by id."""
         return self._categories.get(category_id)
 
     def get_active_items(self) -> List[CommunicationItem]:
-        """Retrieve items for the active category."""
         cat = self._categories.get(self._active_category_id)
         return cat.items if cat else []
 
-    # State Mutators
     def set_category(self, category_id: str) -> bool:
-        """Switch the active communication category."""
         if category_id in self._categories and category_id != self._active_category_id:
             self._active_category_id = category_id
             self._notify_category_changed()
@@ -192,24 +177,20 @@ class CommunicationBoardModel:
         return False
 
     def add_item(self, item: CommunicationItem) -> None:
-        """Append a communication phrase/word to the message."""
         if item.text:
             self._message_tokens.append(item.text)
             self._notify_message_changed()
 
     def add_text(self, text: str) -> None:
-        """Append arbitrary text to the message."""
         if text.strip():
             self._message_tokens.append(text.strip())
             self._notify_message_changed()
 
     def add_space(self) -> None:
-        """Add empty token/separator if needed."""
         self._message_tokens.append("")
         self._notify_message_changed()
 
     def delete_last(self) -> bool:
-        """Remove the most recently added token phrase."""
         if self._message_tokens:
             self._message_tokens.pop()
             self._notify_message_changed()
@@ -217,13 +198,11 @@ class CommunicationBoardModel:
         return False
 
     def clear_message(self) -> None:
-        """Clear all composed message text."""
         if self._message_tokens:
             self._message_tokens.clear()
             self._notify_message_changed()
 
     def request_speak(self) -> str:
-        """Trigger speak action hook (TTS placeholder)."""
         msg = self.current_message
         for listener in self._on_speak_requested_listeners:
             try:
@@ -232,7 +211,6 @@ class CommunicationBoardModel:
                 pass
         return msg
 
-    # Listener Subscriptions
     def on_message_changed(self, callback: Callable[[str], None]) -> None:
         self._on_message_changed_listeners.append(callback)
 

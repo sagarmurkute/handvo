@@ -1,14 +1,13 @@
-"""Application configuration."""
+"""Application configuration for HANDVO."""
 
 
 class Config:
-    app_name = "EYEVO"
-    app_subtitle = "Eye-Gaze Assistive Communication"
+    app_name = "HANDVO"
+    app_subtitle = "Hand-Tracking & Gesture Assistive Communication"
     version = "0.1.0"
-    window_title = "EYEVO"
-    window_width, window_height = 960, 640
-    min_window_width, min_window_height = 640, 480
+    window_title = "HANDVO"
+    window_width, window_height = 1024, 720
+    min_window_width, min_window_height = 880, 620
 
 
 CONFIG = Config
-

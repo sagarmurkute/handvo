@@ -1,8 +1,6 @@
-"""EYEVO - Eye-Gaze Assistive Communication Application.
-
-An assistive communication platform for individuals with limited or no speech,
-enabling gaze-controlled interaction and speech synthesis.
-"""
+"""HANDVO - Hand-Tracking & Gesture Assistive Communication Application."""
 
 __version__ = "0.1.0"
-__app_name__ = "EYEVO"
+__author__ = "Sagar Murkute"
+__license__ = "MIT"
+__app_name__ = "HANDVO"
