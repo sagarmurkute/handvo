@@ -7,6 +7,10 @@ import time
 import webbrowser
 import uvicorn
 
+# Force UTF-8 stdout encoding on Windows
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+
 
 def open_browser():
     time.sleep(1.2)
@@ -15,9 +19,9 @@ def open_browser():
 
 def main():
     print("=" * 60)
-    print("   ✋ HANDVO — AI Hand-Assisted AAC Communication System   ")
-    print("   🌐 Starting Python Backend API & Web Frontend Server   ")
-    print("   📍 URL: http://127.0.0.1:8000                          ")
+    print("   HANDVO - AI Hand-Assisted AAC Communication System   ")
+    print("   Starting Python Backend API & Web Frontend Server    ")
+    print("   URL: http://127.0.0.1:8000                          ")
     print("=" * 60)
 
     # Launch browser automatically
