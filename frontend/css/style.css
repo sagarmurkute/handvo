@@ -1,0 +1,314 @@
+/* ==========================================================================
+   HANDVO Core Design System & Theme Stylesheet
+   ========================================================================== */
+
+:root {
+  /* Dark Theme (Default) */
+  --bg-main: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-card: #111827;
+  --bg-card-hover: #1f2937;
+  --bg-header: rgba(15, 23, 42, 0.88);
+  --border-color: #334155;
+  --border-focus: #38bdf8;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --accent-blue: #0284c7;
+  --accent-cyan: #38bdf8;
+  --accent-green: #22c55e;
+  --accent-amber: #f59e0b;
+  --accent-red: #ef4444;
+  --accent-purple: #a855f7;
+  
+  --cursor-color: #38bdf8;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+  
+  --btn-min-height: 80px;
+  --btn-font-size: 14px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+  
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-main: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card: #f1f5f9;
+  --bg-card-hover: #e2e8f0;
+  --bg-header: rgba(255, 255, 255, 0.9);
+  --border-color: #cbd5e1;
+  --border-focus: #0284c7;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* High Contrast Theme */
+[data-theme="high_contrast"] {
+  --bg-main: #000000;
+  --bg-surface: #000000;
+  --bg-card: #000000;
+  --bg-card-hover: #1a1a1a;
+  --bg-header: #000000;
+  --border-color: #ffff00;
+  --border-focus: #00ffff;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #ffff00;
+  --text-muted: #ffffff;
+  
+  --accent-blue: #00ffff;
+  --accent-cyan: #00ffff;
+  --accent-green: #00ff00;
+  --accent-amber: #ffff00;
+  --accent-red: #ff0000;
+  
+  --cursor-color: #ffff00;
+}
+
+/* UI Scale Variations */
+[data-scale="compact"] {
+  --btn-min-height: 60px;
+  --btn-font-size: 12px;
+}
+[data-scale="medium"] {
+  --btn-min-height: 80px;
+  --btn-font-size: 14px;
+}
+[data-scale="large"] {
+  --btn-min-height: 100px;
+  --btn-font-size: 16px;
+}
+
+/* Global Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* App Shell */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  padding: 12px 18px;
+  gap: 10px;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 8px 16px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 26px;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4));
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Navigation Tabs */
+.view-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab-btn {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+
+.tab-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  background-color: var(--accent-blue);
+  color: #ffffff;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
+}
+
+.tab-btn.tab-emergency {
+  background-color: #991b1b;
+  border-color: var(--accent-red);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.tab-btn.tab-emergency:hover, .tab-btn.tab-emergency.active {
+  background-color: var(--accent-red);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
+}
+
+/* Controls */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-btn {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+
+.control-btn:hover {
+  background-color: var(--border-color);
+}
+
+.btn-camera-toggle {
+  background-color: var(--accent-blue);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-camera-toggle.active {
+  background-color: var(--accent-green);
+}
+
+/* Status Bar */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.status-badge.active {
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.status-badge.error {
+  color: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.badge-dot {
+  font-size: 9px;
+}
+
+.badge-lang {
+  margin-left: auto;
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+/* Main Content Panels */
+.main-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.view-panel {
+  display: none;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+}
+
+.view-panel.active {
+  display: flex;
+}

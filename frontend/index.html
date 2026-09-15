@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-scale="medium">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANDVO — AI Hand-Assisted AAC Communication</title>
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/cursor.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/modals.css">
+</head>
+<body>
+  <!-- Virtual Hand Cursor and Dwell Progress Indicator -->
+  <div id="virtual-cursor" class="virtual-cursor hidden">
+    <div class="cursor-dot"></div>
+    <svg class="cursor-ring" viewBox="0 0 60 60">
+      <circle class="ring-bg" cx="30" cy="30" r="24" />
+      <circle class="ring-progress" cx="30" cy="30" r="24" />
+    </svg>
+    <div class="cursor-glow"></div>
+  </div>
+
+  <!-- Main Desktop Shell -->
+  <div class="app-container">
+    <!-- Top Application Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-logo">
+          <span class="logo-icon">✋</span>
+          <div>
+            <h1 class="brand-title">HANDVO</h1>
+            <p class="brand-subtitle">AI Hand-Assisted AAC Communication</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Switcher Tabs -->
+      <nav class="view-tabs">
+        <button id="tab-comm" class="tab-btn active gaze-target" data-dwell-id="tab_comm">
+          <span class="tab-icon">💬</span> Communication
+        </button>
+        <button id="tab-vision" class="tab-btn gaze-target" data-dwell-id="tab_vision">
+          <span class="tab-icon">📹</span> Vision Feed
+        </button>
+        <button id="tab-emergency" class="tab-btn tab-emergency gaze-target" data-dwell-id="tab_emergency">
+          <span class="tab-icon">🚨</span> EMERGENCY (F1)
+        </button>
+      </nav>
+
+      <!-- Profile & Settings Controls -->
+      <div class="header-controls">
+        <button id="btn-active-profile" class="control-btn gaze-target" data-dwell-id="btn_profile" title="Caregiver Profile Manager">
+          <span class="btn-icon">👤</span> <span id="lbl-profile-name">Default User</span>
+        </button>
+        <button id="btn-open-settings" class="control-btn gaze-target" data-dwell-id="btn_settings" title="Accessibility & Settings (F2)">
+          <span class="btn-icon">⚙️</span> Settings (F2)
+        </button>
+        <button id="btn-toggle-camera" class="control-btn btn-camera-toggle gaze-target" data-dwell-id="btn_cam_toggle">
+          <span class="btn-icon">📷</span> <span id="lbl-cam-btn">Start Camera</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- System Telemetry Status Bar -->
+    <aside class="status-bar">
+      <div class="status-badge" id="badge-camera">
+        <span class="badge-dot">●</span> <span id="txt-cam-status">Camera Offline</span>
+      </div>
+      <div class="status-badge" id="badge-tracking">
+        <span class="badge-dot">●</span> <span id="txt-track-status">NO HAND DETECTED</span>
+      </div>
+      <div class="status-badge" id="badge-pinch">
+        <span class="badge-dot">●</span> <span id="txt-pinch-status">PINCH IDLE</span>
+      </div>
+      <div class="status-badge" id="badge-cursor">
+        <span class="badge-dot">●</span> <span id="txt-cursor-status">Cursor Tracking</span>
+      </div>
+      <div class="status-badge badge-lang" id="badge-lang">
+        <span id="txt-lang-badge">🌐 English</span>
+      </div>
+    </aside>
+
+    <!-- Main Dynamic Content Views -->
+    <main class="main-content">
+      <!-- 1. AAC Communication Board View -->
+      <section id="view-comm" class="view-panel active">
+        <!-- Sentence Builder Card -->
+        <div class="sentence-card">
+          <div class="sentence-header">
+            <span class="section-label">💬 SENTENCE COMPOSER</span>
+            <span class="token-counter" id="lbl-word-count">0 Words</span>
+          </div>
+          <div class="sentence-display" id="sentence-box">
+            <p id="composed-text" class="placeholder-text">Point hand cursor or click on cards below to compose a sentence...</p>
+          </div>
+          <div class="sentence-actions">
+            <button id="btn-speak" class="action-btn btn-speak gaze-target" data-dwell-id="act_speak">
+              <span class="btn-icon">🔊</span> SPEAK
+            </button>
+            <button id="btn-space" class="action-btn gaze-target" data-dwell-id="act_space">
+              <span class="btn-icon">␣</span> Space
+            </button>
+            <button id="btn-delete" class="action-btn btn-warning gaze-target" data-dwell-id="act_delete">
+              <span class="btn-icon">⌫</span> Delete
+            </button>
+            <button id="btn-clear" class="action-btn btn-danger gaze-target" data-dwell-id="act_clear">
+              <span class="btn-icon">🗑️</span> Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Smart Prediction Chips Row -->
+        <div class="prediction-section">
+          <div class="prediction-header">
+            <span class="pred-label">⚡ SMART PREDICTIONS</span>
+          </div>
+          <div class="prediction-chips" id="prediction-chips-container">
+            <!-- Dynamically populated chips -->
+          </div>
+        </div>
+
+        <!-- AAC Category Navigation Tabs -->
+        <div class="category-tabs-bar" id="category-tabs-container">
+          <!-- Dynamically populated category buttons -->
+        </div>
+
+        <!-- Accessible Phrase Cards Grid Scroll Area -->
+        <div class="cards-scroll-area">
+          <div class="cards-grid" id="phrase-cards-container">
+            <!-- Dynamically populated phrase cards -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Vision & Live Camera Skeleton View -->
+      <section id="view-vision" class="view-panel">
+        <div class="vision-container">
+          <div class="vision-canvas-wrapper">
+            <canvas id="camera-canvas" width="640" height="480"></canvas>
+            <div id="vision-overlay-msg" class="vision-placeholder">
+              <p>Camera Offline — Click 'Start Camera' to begin real-time hand tracking</p>
+            </div>
+          </div>
+          <div class="vision-controls">
+            <button id="btn-calibrate-hand" class="control-btn btn-primary gaze-target" data-dwell-id="btn_calibrate">
+              🎯 Calibrate Hand Range
+            </button>
+            <div class="telemetry-card">
+              <h3>Live Telemetry</h3>
+              <div class="telemetry-grid">
+                <div><span>X Coordinate:</span> <strong id="val-x">0.00</strong></div>
+                <div><span>Y Coordinate:</span> <strong id="val-y">0.00</strong></div>
+                <div><span>Pinch Distance:</span> <strong id="val-pinch">0.00</strong></div>
+                <div><span>Handedness:</span> <strong id="val-hand">-</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Fullscreen Dedicated Emergency Mode -->
+      <section id="view-emergency" class="view-panel view-emergency-panel">
+        <div class="emergency-banner">
+          <h2>🚨 EMERGENCY ASSISTANCE MODE</h2>
+          <p>High-Priority Offline Medical & Emergency Communication</p>
+        </div>
+        <div class="emergency-spoken-box">
+          <span class="spoken-title">🔊 LAST SPOKEN:</span>
+          <p id="emergency-spoken-text" class="spoken-message">Ready</p>
+        </div>
+        <div class="emergency-grid" id="emergency-cards-container">
+          <!-- Dynamically populated emergency cards -->
+        </div>
+        <div class="emergency-footer">
+          <button id="btn-exit-emergency" class="action-btn btn-emergency-exit gaze-target" data-dwell-id="emg_exit">
+            ✕ Exit Emergency Mode
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: Accessibility & Personalization Settings (F2) -->
+  <div id="modal-settings" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-large">
+      <div class="modal-header">
+        <h2>⚙️ Accessibility & Personalization Suite</h2>
+        <button class="modal-close" id="btn-close-settings">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-tabs">
+          <button class="settings-tab-btn active" data-tab="st-dwell">🎯 Interaction & Dwell</button>
+          <button class="settings-tab-btn" data-tab="st-visuals">👁️ Visuals & Themes</button>
+          <button class="settings-tab-btn" data-tab="st-speech">🔊 Speech & Sound</button>
+          <button class="settings-tab-btn" data-tab="st-lang">🌐 Language (भाषा)</button>
+        </div>
+        
+        <!-- Tab 1: Dwell & Interaction -->
+        <div id="st-dwell" class="settings-tab-content active">
+          <div class="settings-group">
+            <label>Dwell Duration: <strong id="val-dwell-time">0.80s</strong></label>
+            <input type="range" id="slider-dwell" min="30" max="300" value="80">
+          </div>
+          <div class="settings-group">
+            <label>Cooldown Duration: <strong id="val-cooldown-time">0.60s</strong></label>
+            <input type="range" id="slider-cooldown" min="20" max="200" value="60">
+          </div>
+          <div class="settings-group">
+            <label>Cursor Smoothing: <strong id="val-smoothing">1.5x</strong></label>
+            <input type="range" id="slider-smoothing" min="5" max="30" value="15">
+          </div>
+          <div class="settings-group">
+            <label>Dominant Hand:</label>
+            <select id="select-hand">
+              <option value="Right">Right Hand</option>
+              <option value="Left">Left Hand</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tab 2: Visuals & Themes -->
+        <div id="st-visuals" class="settings-tab-content">
+          <div class="settings-group">
+            <label>Cursor Size: <strong id="val-cursor-size">14px</strong></label>
+            <input type="range" id="slider-cursor-size" min="10" max="32" value="14">
+          </div>
+          <div class="settings-group">
+            <label>Cursor Color:</label>
+            <div class="color-presets">
+              <button class="color-chip" style="background:#38bdf8" data-color="#38bdf8"></button>
+              <button class="color-chip" style="background:#22c55e" data-color="#22c55e"></button>
+              <button class="color-chip" style="background:#f59e0b" data-color="#f59e0b"></button>
+              <button class="color-chip" style="background:#ec4899" data-color="#ec4899"></button>
+              <button class="color-chip" style="background:#ffffff" data-color="#ffffff"></button>
+              <button class="color-chip" style="background:#ffff00" data-color="#ffff00"></button>
+            </div>
+          </div>
+          <div class="settings-group">
+            <label>Theme Mode:</label>
+            <select id="select-theme">
+              <option value="dark">Dark Mode (Sleek Slate)</option>
+              <option value="light">Light Mode (Crisp White)</option>
+              <option value="high_contrast">High-Contrast (Yellow on Black)</option>
+            </select>
+          </div>
+          <div class="settings-group">
+            <label>Button & UI Scaling:</label>
+            <select id="select-scale">
+              <option value="compact">Compact (Small)</option>
+              <option value="medium" selected>Standard (Medium)</option>
+              <option value="large">Accessible (Large)</option>
+            </select>
+          </div>
+          <div class="settings-group">
+            <label><input type="checkbox" id="chk-reduced-motion"> Reduced Motion Animations</label>
+          </div>
+        </div>
+
+        <!-- Tab 3: Speech & Sound -->
+        <div id="st-speech" class="settings-tab-content">
+          <div class="settings-group">
+            <label>Voice Model:</label>
+            <select id="select-voice"></select>
+          </div>
+          <div class="settings-group">
+            <label>Speech Rate: <strong id="val-speech-rate">150 WPM</strong></label>
+            <input type="range" id="slider-speech-rate" min="80" max="260" value="150">
+          </div>
+          <div class="settings-group">
+            <label>Speech Volume: <strong id="val-speech-vol">100%</strong></label>
+            <input type="range" id="slider-speech-vol" min="10" max="100" value="100">
+          </div>
+          <div class="settings-group">
+            <label><input type="checkbox" id="chk-dwell-sound" checked> Play Audio Cue on Dwell Selection</label>
+          </div>
+          <button id="btn-test-voice" class="action-btn btn-primary">🔊 Test Spoken Voice</button>
+        </div>
+
+        <!-- Tab 4: Language & Localization -->
+        <div id="st-lang" class="settings-tab-content">
+          <div class="settings-group">
+            <label>Application AAC Language:</label>
+            <select id="select-language">
+              <option value="en">English (English)</option>
+              <option value="hi">हिंदी (Hindi)</option>
+              <option value="mr">मराठी (Marathi)</option>
+            </select>
+          </div>
+          <p class="help-text">Selected language instantly updates all AAC phrases, category cards, and smart prediction cues.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-reset-defaults" class="action-btn btn-secondary">↺ Reset Defaults</button>
+        <button id="btn-save-settings" class="action-btn btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Caregiver Profile Manager -->
+  <div id="modal-profiles" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-large">
+      <div class="modal-header">
+        <h2>👤 Caregiver Profile Manager</h2>
+        <button class="modal-close" id="btn-close-profiles">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="profiles-list-section">
+          <h3>User Profiles</h3>
+          <div class="profiles-list" id="profiles-list-container"></div>
+          <div class="profile-actions-bar">
+            <button id="btn-new-profile" class="action-btn btn-primary">+ New Profile</button>
+            <button id="btn-export-profile" class="action-btn btn-secondary">💾 Export JSON</button>
+            <label class="action-btn btn-secondary file-upload-btn">
+              📂 Import JSON <input type="file" id="input-import-profile" accept=".json" style="display:none">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Guided Hand Calibration Wizard -->
+  <div id="modal-calibration" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-large">
+      <div class="modal-header">
+        <h2>🎯 Hand Calibration Wizard</h2>
+        <button class="modal-close" id="btn-close-calibration">&times;</button>
+      </div>
+      <div class="modal-body calibration-body">
+        <div class="calibration-step-indicator" id="calib-steps">
+          <div class="step active" data-step="1">1. Neutral</div>
+          <div class="step" data-step="2">2. Range</div>
+          <div class="step" data-step="3">3. Hand</div>
+          <div class="step" data-step="4">4. Pinch</div>
+          <div class="step" data-step="5">5. Verify</div>
+        </div>
+        <div class="calibration-content" id="calib-content">
+          <h3 id="calib-step-title">Step 1: Comfortable Resting Position</h3>
+          <p id="calib-step-desc">Hold your hand in your natural, comfortable center position in front of the camera.</p>
+          <div class="calib-progress-bar">
+            <div class="calib-progress-fill" id="calib-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-calib-action" class="action-btn btn-primary">Start Sampling</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Modular JavaScript -->
+  <script src="js/tts_audio.js"></script>
+  <script src="js/websocket.js"></script>
+  <script src="js/cursor.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/prediction.js"></script>
+  <script src="js/emergency.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/profiles.js"></script>
+  <script src="js/calibration.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+/* ==========================================================================
+   HANDVO Communication Board, Prediction Chips & Phrase Cards Stylesheet
+   ========================================================================== */
+
+/* Sentence Builder Container */
+.sentence-card {
+  background-color: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sentence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  letter-spacing: 0.8px;
+}
+
+.token-counter {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sentence-display {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  line-height: 1.4;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.sentence-display .placeholder-text {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+/* Sentence Action Buttons */
+.sentence-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  transition: var(--transition-fast);
+}
+
+.action-btn:hover {
+  background-color: var(--border-color);
+}
+
+.action-btn.btn-speak {
+  background-color: var(--accent-blue);
+  color: #ffffff;
+  border-color: var(--accent-blue);
+  font-weight: 700;
+  flex: 1.6;
+}
+
+.action-btn.btn-speak:hover {
+  background-color: #0369a1;
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
+}
+
+.action-btn.btn-warning {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: var(--accent-amber);
+  color: var(--accent-amber);
+}
+
+.action-btn.btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+/* Smart Predictions Row */
+.prediction-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(168, 85, 247, 0.06);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  margin-top: 6px;
+}
+
+.prediction-header .pred-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-purple);
+  white-space: nowrap;
+}
+
+.prediction-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex: 1;
+}
+
+.pred-chip {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-fast);
+}
+
+.pred-chip:hover {
+  background-color: var(--accent-purple);
+  color: #ffffff;
+  border-color: var(--accent-purple);
+}
+
+/* Category Navigation Tabs Bar */
+.category-tabs-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  overflow-x: auto;
+}
+
+.cat-tab-btn {
+  background-color: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  flex: 1;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.cat-tab-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.cat-tab-btn.active {
+  background-color: var(--accent-blue);
+  color: #ffffff;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.35);
+}
+
+/* Accessible Phrase Cards Grid */
+.cards-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding-right: 4px;
+}
+
+.cards-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cards-scroll-area::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.phrase-card {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  min-height: var(--btn-min-height, 80px);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  gap: 4px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+.phrase-card:hover {
+  background-color: var(--bg-card-hover);
+}
+
+.card-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.card-label {
+  font-size: var(--btn-font-size, 14px);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.card-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1.1;
+}

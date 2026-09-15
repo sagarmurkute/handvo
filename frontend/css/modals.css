@@ -1,0 +1,405 @@
+/* ==========================================================================
+   HANDVO Modals, Emergency View & Calibration Wizard Stylesheet
+   ========================================================================== */
+
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(11, 15, 25, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.modal-backdrop.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Modal Dialog Box */
+.modal-dialog {
+  background-color: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  overflow: hidden;
+}
+
+.modal-large {
+  width: 760px;
+  max-width: 94vw;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 18px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+}
+
+/* Settings Tabs */
+.settings-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.settings-tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.settings-tab-btn.active {
+  background-color: var(--accent-blue);
+  color: #ffffff;
+}
+
+.settings-tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-tab-content.active {
+  display: flex;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+}
+
+.settings-group select, .settings-group input[type="text"] {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.settings-group input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-cyan);
+}
+
+.color-presets {
+  display: flex;
+  gap: 10px;
+}
+
+.color-chip {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.color-chip:hover {
+  transform: scale(1.15);
+}
+
+.help-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Emergency Mode View */
+.view-emergency-panel {
+  background-color: #050505;
+  border: 3px solid var(--accent-red);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.emergency-banner {
+  text-align: center;
+  background: linear-gradient(90deg, #7f1d1d, #991b1b, #7f1d1d);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--accent-red);
+}
+
+.emergency-banner h2 {
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.emergency-banner p {
+  font-size: 13px;
+  color: #fca5a5;
+}
+
+.emergency-spoken-box {
+  background-color: #111827;
+  border: 2px solid var(--accent-amber);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spoken-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent-amber);
+}
+
+.spoken-message {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.emergency-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.emergency-card {
+  background-color: #1f2937;
+  border: 3px solid var(--accent-red);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  gap: 6px;
+}
+
+.emergency-card .card-icon {
+  font-size: 36px;
+}
+
+.emergency-card .card-label {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.emergency-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-emergency-exit {
+  background-color: #334155;
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+}
+
+/* Vision Feed Panel */
+.vision-container {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+}
+
+.vision-canvas-wrapper {
+  flex: 1;
+  background-color: #000000;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#camera-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vision-placeholder {
+  position: absolute;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.vision-controls {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.telemetry-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.telemetry-card h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-bottom: 8px;
+}
+
+.telemetry-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.telemetry-grid strong {
+  color: var(--text-primary);
+  float: right;
+}
+
+/* Calibration Wizard */
+.calibration-step-indicator {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.calibration-step-indicator .step {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.calibration-step-indicator .step.active {
+  color: var(--accent-cyan);
+  font-weight: 800;
+}
+
+.calib-progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+.calib-progress-fill {
+  height: 100%;
+  width: 0%;
+  background-color: var(--accent-cyan);
+  transition: width 0.1s linear;
+}
+
+/* Profiles Manager */
+.profiles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.profile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.profile-item.active {
+  border-color: var(--accent-cyan);
+  background-color: rgba(56, 189, 248, 0.08);
+}
+
+.profile-actions-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
