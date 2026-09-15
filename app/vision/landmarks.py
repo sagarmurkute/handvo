@@ -32,9 +32,61 @@ class HandLandmarks:
         return self.landmarks[4] if self.is_valid else None
 
     @property
+    def thumb_ip(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[3] if self.is_valid else None
+
+    @property
+    def thumb_mcp(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[2] if self.is_valid else None
+
+    @property
+    def thumb_cmc(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[1] if self.is_valid else None
+
+    @property
     def index_tip(self) -> Optional[LandmarkPoint]:
         return self.landmarks[8] if self.is_valid else None
 
     @property
+    def index_pip(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[6] if self.is_valid else None
+
+    @property
+    def index_mcp(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[5] if self.is_valid else None
+
+    @property
+    def middle_tip(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[12] if self.is_valid else None
+
+    @property
+    def middle_pip(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[10] if self.is_valid else None
+
+    @property
     def middle_mcp(self) -> Optional[LandmarkPoint]:
         return self.landmarks[9] if self.is_valid else None
+
+    @property
+    def ring_tip(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[16] if self.is_valid else None
+
+    @property
+    def ring_pip(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[14] if self.is_valid else None
+
+    @property
+    def ring_mcp(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[13] if self.is_valid else None
+
+    @property
+    def pinky_tip(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[20] if self.is_valid else None
+
+    @property
+    def pinky_pip(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[18] if self.is_valid else None
+
+    @property
+    def pinky_mcp(self) -> Optional[LandmarkPoint]:
+        return self.landmarks[17] if self.is_valid else None

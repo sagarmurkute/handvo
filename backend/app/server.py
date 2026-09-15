@@ -20,6 +20,7 @@ from app.database.models import EmergencyAction, UserProfile
 from app.database.profile_repository import ProfileRepository
 from app.gestures.cursor import HandCursorManager
 from app.gestures.dwell import DwellSelector
+from app.gestures.gesture_classifier import HandGestureClassifier
 from app.gestures.pinch import PinchDetector
 from app.vision.camera import Camera
 from app.vision.hand_detector import HandDetector
@@ -39,6 +40,7 @@ class ServerState:
         self.hand_detector = HandDetector()
         self.cursor_manager = HandCursorManager()
         self.pinch_detector = PinchDetector()
+        self.gesture_classifier = HandGestureClassifier()
         self.is_camera_running = False
 
 
@@ -270,6 +272,7 @@ async def websocket_vision_endpoint(websocket: WebSocket):
                     if primary and primary.is_valid:
                         cursor_pos = state.cursor_manager.update(primary, 1920, 1080)
                         pinch_res = state.pinch_detector.detect(primary)
+                        gesture_res = state.gesture_classifier.classify(primary)
                         landmarks_list = [{"x": pt.x, "y": pt.y, "z": pt.z} for pt in primary.landmarks]
 
                         packet = {
@@ -282,17 +285,26 @@ async def websocket_vision_endpoint(websocket: WebSocket):
                             "is_pinched": pinch_res.is_pinched,
                             "pinch_distance": pinch_res.pinch_distance,
                             "handedness": primary.handedness,
+                            "gesture": gesture_res.raw_gesture_name,
+                            "gesture_confidence": gesture_res.confidence,
+                            "swipe_event": gesture_res.swipe_event,
+                            "finger_states": gesture_res.finger_states,
                             "landmarks": landmarks_list,
                             "image": f"data:image/jpeg;base64,{frame_b64}",
                         }
                     else:
                         cursor_pos = state.cursor_manager.update(None, 1920, 1080)
+                        state.gesture_classifier.reset()
                         packet = {
                             "camera_active": True,
                             "tracking_valid": False,
                             "norm_x": 0.5,
                             "norm_y": 0.5,
                             "is_pinched": False,
+                            "gesture": "none",
+                            "gesture_confidence": 0.0,
+                            "swipe_event": None,
+                            "finger_states": {},
                             "landmarks": [],
                             "image": f"data:image/jpeg;base64,{frame_b64}",
                         }

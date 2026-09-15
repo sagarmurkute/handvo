@@ -19,6 +19,8 @@ class ApplicationController {
     this.txtTrack = document.getElementById('txt-track-status');
     this.badgePinch = document.getElementById('badge-pinch');
     this.txtPinch = document.getElementById('txt-pinch-status');
+    this.badgeGesture = document.getElementById('badge-gesture');
+    this.txtGesture = document.getElementById('txt-gesture-status');
 
     this.canvas = document.getElementById('camera-canvas');
     this.canvasCtx = this.canvas ? this.canvas.getContext('2d') : null;
@@ -28,6 +30,10 @@ class ApplicationController {
     this.valY = document.getElementById('val-y');
     this.valPinch = document.getElementById('val-pinch');
     this.valHand = document.getElementById('val-hand');
+    this.valGesture = document.getElementById('val-gesture');
+
+    this._lastGestureTriggerTime = 0;
+    this._gestureCooldownSec = 1.2;
 
     this._bindNavigation();
     this._bindVisionStreaming();
@@ -92,7 +98,9 @@ class ApplicationController {
     const isValid = !!data.tracking_valid;
     const isPinched = !!data.is_pinched;
     const handedness = data.handedness || 'Right';
+    const gesture = data.gesture || 'none';
 
+    // Update virtual hand cursor
     window.CursorEngine.updatePosition(x, y, isValid, isPinched);
 
     // 2. Status Badges Update
@@ -112,7 +120,32 @@ class ApplicationController {
       this.badgePinch.classList.remove('active');
     }
 
-    // 3. Update Camera Toggle button state
+    // 3. Gesture Status Badge
+    const gestureDisplayMap = {
+      'thumbs_up': '👍 THUMBS UP',
+      'thumbs_down': '👎 THUMBS DOWN',
+      'fist': '✊ FIST (Backspace)',
+      'peace_sign': '✌️ PEACE SIGN (Help)',
+      'open_palm': '✋ OPEN PALM (Rest)',
+      'pinch': '🤏 PINCH (Click)',
+      'pointing': '👉 POINTING',
+      'swipe_left': '👈 SWIPE PREV',
+      'swipe_right': '👉 SWIPE NEXT',
+      'none': '✋ IDLE'
+    };
+
+    if (this.txtGesture) {
+      this.txtGesture.textContent = gestureDisplayMap[gesture] || `✋ ${gesture.toUpperCase()}`;
+    }
+    if (this.badgeGesture) {
+      if (gesture !== 'none') {
+        this.badgeGesture.classList.add('active');
+      } else {
+        this.badgeGesture.classList.remove('active');
+      }
+    }
+
+    // 4. Update Camera Toggle button state
     if (data.camera_active) {
       this.btnCamToggle?.classList.add('active');
       if (this.lblCamBtn) this.lblCamBtn.textContent = 'Stop Camera';
@@ -125,15 +158,58 @@ class ApplicationController {
       if (this.visionOverlay) this.visionOverlay.style.display = 'block';
     }
 
-    // 4. Update Telemetry Card
+    // 5. Update Telemetry Card
     if (this.valX) this.valX.textContent = Math.round(x);
     if (this.valY) this.valY.textContent = Math.round(y);
     if (this.valPinch) this.valPinch.textContent = data.pinch_distance ? data.pinch_distance.toFixed(3) : '0.000';
     if (this.valHand) this.valHand.textContent = handedness;
+    if (this.valGesture) this.valGesture.textContent = gestureDisplayMap[gesture] || gesture;
 
-    // 5. Draw Skeleton & Video on Canvas if on Vision tab
+    // 6. Execute Assistive Gesture Actions
+    this._handleGestureActions(gesture, data.swipe_event);
+
+    // 7. Draw Skeleton & Video on Canvas if on Vision tab
     if (this.currentView === 'vision' && this.canvasCtx) {
       this._drawSkeleton(data.landmarks || [], data.image);
+    }
+  }
+
+  _handleGestureActions(gesture, swipeEvent) {
+    const now = performance.now() / 1000;
+    if (now - this._lastGestureTriggerTime < this._gestureCooldownSec) {
+      return;
+    }
+
+    // Dynamic swipe gesture: Category tab switching
+    if (swipeEvent === 'right') {
+      window.CommBoard?.cycleCategory(1);
+      this._lastGestureTriggerTime = now;
+      return;
+    } else if (swipeEvent === 'left') {
+      window.CommBoard?.cycleCategory(-1);
+      this._lastGestureTriggerTime = now;
+      return;
+    }
+
+    // Static gestures
+    if (gesture === 'thumbs_up') {
+      // Speak composed sentence
+      if (window.CommBoard && window.CommBoard.getCurrentSentence()) {
+        window.CommBoard.speakSentence();
+        this._lastGestureTriggerTime = now;
+      }
+    } else if (gesture === 'fist') {
+      // Backspace last token
+      if (window.CommBoard && window.CommBoard.tokens.length > 0) {
+        window.CommBoard.deleteLastToken();
+        this._lastGestureTriggerTime = now;
+      }
+    } else if (gesture === 'peace_sign') {
+      // Emergency trigger
+      if (this.currentView !== 'emergency') {
+        this.switchView('emergency');
+        this._lastGestureTriggerTime = now;
+      }
     }
   }
 

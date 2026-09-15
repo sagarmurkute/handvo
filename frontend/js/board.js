@@ -202,6 +202,20 @@ class CommunicationBoard {
     });
   }
 
+  cycleCategory(delta = 1) {
+    const vocab = this.vocabularies[this.language] || this.vocabularies.en;
+    const cats = vocab.categories || [];
+    if (cats.length === 0) return;
+    const currentIdx = cats.findIndex(c => c.id === this.activeCategory);
+    let nextIdx = (currentIdx + delta) % cats.length;
+    if (nextIdx < 0) nextIdx += cats.length;
+    this.activeCategory = cats[nextIdx].id;
+    this.renderCategories();
+    this.renderPhraseCards();
+    window.PredictionEngine?.updatePredictions(this.getCurrentSentence(), this.activeCategory);
+    window.AudioEngine?.playSound('click');
+  }
+
   renderPhraseCards() {
     if (!this.phrasesContainer) return;
     this.phrasesContainer.innerHTML = '';
